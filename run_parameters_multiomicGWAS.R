@@ -24,7 +24,7 @@ multiomicGWAS <- (
     maf = "0.02",
     LOCO = FALSE,
     pheno_taxa_strain = "taxa1",
-    pheno_taxa_sspecies = "taxa2",
+    pheno_taxa_species = "taxa2",
     metag_data_strains = "metag.txt",
     metag_data_species = "metag.txt"
 )
