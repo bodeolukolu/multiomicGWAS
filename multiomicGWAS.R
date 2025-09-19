@@ -87,6 +87,7 @@ load_packages(pkgs)
   pvalue <- 1
   perc <- 5
   metag_method <- "Aitchison"            # Aitchison or pca
+  drop_zero_trait_value <- FALSE
   #############################################################################################################################################################################
   # Optional parameters
   ######################
