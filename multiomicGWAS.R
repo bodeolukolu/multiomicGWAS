@@ -87,7 +87,6 @@ load_packages(pkgs)
   pvalue <- 1
   perc <- 5
   metag_method <- "Aitchison"            # Aitchison or pca
-  drop_zero_trait_value <- FALSE
   #############################################################################################################################################################################
   # Optional parameters
   ######################
@@ -204,7 +203,6 @@ load_packages(pkgs)
         if (!is.null(phenotype_data)){
           traits_pheno <- read.delim(paste("../",phenotype_data,sep=""), header=T, sep="\t", check.names=FALSE,stringsAsFactors=FALSE)
           colnames(traits_pheno)[1] <- "Plant_ID"
-          if (drop_zero_trait_value == TRUE) { traits_pheno[][traits_pheno[] == "0"] <- NA }
           all_traits_pheno <- colnames(traits_pheno)[2:ncol(traits_pheno)]
           for (i in 2:ncol(traits_pheno)){
             tiff(paste("./normal_distribution/",colnames(traits_pheno)[i],".tiff",sep=""), width=5, height=5, units = 'in', res = 300, compression = 'lzw')
@@ -219,7 +217,6 @@ load_packages(pkgs)
             traits <- merge(traits_pheno, samples, by="Plant_ID")
           }
         }
-        if (drop_zero_trait_value == TRUE) { traits[is.na(traits)] = 0 }
         names(traits) <- sub(".x$", "", names(traits))
         names(traits) <- sub(".y$", "", names(traits))
         traits_hold <- traits[,c(1,2)]; traits_hold[,2] <- as.numeric(traits_hold[,2])
@@ -255,7 +252,6 @@ load_packages(pkgs)
           i <- names(traits)[j]
           pheno <- subset(traits, select=c(1,j))
           pheno <- na.omit(pheno)
-          if (drop_zero_trait_value == TRUE) { pheno[,2][pheno[,2] == "0"] <- NA }
           traitname <- (colnames(pheno))[2]
 
           # Compute correlation coefficients or extract it from pre-computed correlations.
@@ -272,7 +268,6 @@ load_packages(pkgs)
               tdata <- traits
               tdata <- tdata[tdata$Plant_ID %in% pheno$Plant_ID, ]
               tdata <- (tdata[,2:ncol(tdata)])
-              if (drop_zero_trait_value == TRUE) { tdata[,i][tdata[,i] == "0"] <- NA }
               tdata_0 <- subset(tdata, select=c(i)); tdata <- tdata[,!(names(tdata) %in% i)]
               tdata <- as.data.frame(t(tdata))
               tdata$count <- rowSums(tdata[,1:ncol(tdata)] > 1, na.rm=TRUE)
