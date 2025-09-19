@@ -18,7 +18,7 @@ multiomicGWAS <- function(
     phenofile = NULL,
     method = "MLM",
     covariate_pheno = NULL,
-    covariate_metag = NULL,
+    covariate_metag = FALSE,
     maf = "0.02",
     LOCO = FALSE,
     pheno_taxa_strain = NULL,
