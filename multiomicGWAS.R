@@ -51,7 +51,9 @@ load_packages(pkgs)
   setwd(wdir)
   dir_prefix_name <- projname
   pop <- projname
+  ploidy_levels <- as.numeric(ploidy_levels)
   gwas_method <- method
+  maf <- as.numeric(maf)
   file_ploidy_2 <- genofile_2x
   file_ploidy_4 <- genofile_4x
   file_ploidy_6 <- genofile_6x
@@ -75,8 +77,9 @@ load_packages(pkgs)
   # Thresholds
   threshold_FDR <- fdr
   threshold_Bonferroni <- bonferroni
-  threshold_suggestive <- suggestive
-  permutations <- perm
+  threshold_suggestive <- as.numeric(suggestive)
+  permutations <- as.numeric(perm)
+  cores <- as.numeric(cores)
 
 
   #############################################################################################################################################################################
