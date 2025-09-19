@@ -1,4 +1,6 @@
-metaGWAS <- function(
+#!/usr/bin/env Rscript
+
+multiomicGWAS <- function(
     wdir = "./",
     projname = "GWAS",
     ploidy_levels = c("2","4","6","8"),
@@ -49,49 +51,49 @@ metaGWAS <- function(
   library(sommer)
   library(mice)
   library(qvalue)
-  
-  
+
+
   #############################################################################################################################################################################
   # Specify parameters
   ####################
   setwd(wdir)
-  if (exists(projname)) { dir_prefix_name <- projname } else { dir_prefix_name <- "./" }
+  dir_prefix_name <- projname
   pop <- projname
-  if (exists(method)) {gwas_method <- method} else {gwas_method <- "MLM"}
-  if (exists(LOCO)) { LOCO <- LOCO } else { LOCO <- FALSE }
-  if (exists(maf)) { maf <- maf } else { maf <- 0.02 }
-  if (exists(genofile_2x)) {file_ploidy_2 <- genofile_2x} else {file_ploidy_2 <- NULL}
-  if (exists(genofile_4x)) {file_ploidy_4 <- genofile_4x} else {file_ploidy_4 <- NULL}
-  if (exists(genofile_6x)) {file_ploidy_6 <- genofile_6x} else {file_ploidy_6 <- NULL}
-  if (exists(genofile_8x)) {file_ploidy_8 <- genofile_8x} else {file_ploidy_8 <- NULL}
-  if (exists(phenofile)) {phenotype_data <- phenofile
-  } else {
-    print(cat("Phenotype data not provided\n",
-              "if metagenome/microbiome data is provided\n", "GWAS will use taxa abundance as phenotype"))
+  gwas_method <- method
+  file_ploidy_2 <- genofile_2x
+  file_ploidy_4 <- genofile_4x
+  file_ploidy_6 <- genofile_6x
+  file_ploidy_8 <- genofile_8x
+  if (is.null(phenofile)) {
+    cat("Phenotype data not provided.\n",
+        "If metagenome/microbiome data is provided, GWAS will use taxa abundance as phenotype.\n")
     phenotype_data <- NULL
+  } else {
+    phenotype_data <- phenofile
   }
-  if (!exists(covariate_pheno)) {covariatename <- covariate_pheno} else {covariatename <- NULL}
-  drop_zero_trait_value <- FALSE
-  if (exists(covariate_metag_taxa)) { covariate <- covariate_metag_taxa } else { covariate <- FALSE }
-  if (exists(covariate_metag_taxa)) { corr_coeff <- "full" } else { corr_coeff <- NULL }
-  if (exists(pheno_taxa_strain)) { taxa_strain <- pheno_taxa_strain } else { taxa_strain <- NULL }
-  if (exists(pheno_taxa_sspecies)) { taxa_species <- pheno_taxa_sspecies } else { taxa_species <- NULL }
-  if (exists(metag_data_strains)) { metagenome_data_strains <- metag_data_strains } else { metagenome_data_strains <- NULL }
-  if (exists(metag_data_species)) { metagenome_data_species <- metag_data_species } else { metagenome_data_species <- NULL }
-  if (exists(model_effect)) { 
+  covariatename <- covariate_pheno
+  covariate <- covariate_metag
+  corr_coeff <- if(covariate_metag) "full" else NULL
+  # Microbiome as phenotypes
+  taxa_strain <- pheno_taxa_strain
+  taxa_species <- pheno_taxa_species
+  metagenome_data_strains <- metag_data_strains
+  metagenome_data_species <- metag_data_species
+  if (exists(model_effect)) {
     if ("Add" %in% model_effect && "Dom" %in% model_effect) {model <- "Add_Dom"}
     if ("Add" %in% model_effect && !("Dom" %in% model_effect)) {model <- "Add"}
     if (!("Add" %in% model_effect) && "Dom" %in% model_effect) {model <- "Add_Dom"}
-  } else { 
-    model <- "Add" 
+  } else {
+    model <- "Add"
   }
-  if (exists(fdr)) { threshold_FDR <- fdr } else { threshold_FDR <- TRUE }
-  if (exists(bonferroni)) { threshold_Bonferroni <- bonferroni } else { threshold_Bonferroni <- TRUE }
-  if (exists(suggestive)) { threshold_suggestive <- suggestive } else { threshold_suggestive <- "5"}
-  if (exists(perm)) { permutations <- perm } else { permutations <- "1" }
-  if (exists(perm)) { cores <- cores } else { cores <- 1 }
+  # Thresholds
+  threshold_FDR <- fdr
+  threshold_Bonferroni <- bonferroni
+  threshold_suggestive <- suggestive
+  permutations <- perm
+  cores <- cores
 
-    
+
   if (exists()) {  } else {  }
   #############################################################################################################################################################################
   # Specify other variables for metagenome-based analysis
@@ -112,7 +114,7 @@ metaGWAS <- function(
   if ("4" %in% ploidy_levels) { Gmethod="VanRaden" }
   if ("6" %in% ploidy_levels) { Gmethod="VanRaden" }
   if ("8" %in% ploidy_levels) { Gmethod="VanRaden" }
-  
+
   #############################################################################################################################################################################
   if (!is.null(trait_names) == (!is.null(taxa_strain) || !is.null(taxa_species))) {
     print("Please provide <trait names> or <taxa names>. YOu can't provide both")
@@ -123,7 +125,7 @@ metaGWAS <- function(
       if(covariate == FALSE) {no_covariate <- TRUE}
       if(!is.null(metagenome_data_species)) {metag <- read.table(metagenome_data_species, header=T, sep="\t", check.names=FALSE,stringsAsFactors=FALSE)}
       if(!is.null(metagenome_data_species)) {metag <- read.table(metagenome_data_species, header=T, sep="\t", check.names=FALSE,stringsAsFactors=FALSE)}
-      
+
       if (no_covariate == TRUE && is.null(covariatename) && !is.null(trait_names)) { dir1 <- paste(dir_prefix_name,"_pheno_Mnocov_",ploidy,"x",sep="") } else {dir1 <- NULL}
       if (no_covariate == TRUE && !is.null(covariatename) && !is.null(trait_names)) { dir2 <- paste(dir_prefix_name,"_pheno_Pcov_Mnocov_",ploidy,"x",sep="") } else {dir2 <- NULL}
       if (covariate == TRUE && is.null(covariatename) && !is.null(metagenome_data_strains) && !is.null(trait_names) && is.null(taxa_strain)) { dir3 <- paste(dir_prefix_name,"_pheno_strain_Mcov_",ploidy,"x",sep="") } else {dir3 <- NULL}
@@ -139,7 +141,7 @@ metaGWAS <- function(
       if (covariate == TRUE && !is.null(covariatename) && !is.null(metagenome_data_strains) && !is.null(taxa_strain) && is.null(trait_names)) { dir13 <- paste(dir_prefix_name,"Pcov_strain_Mcov_",ploidy,"x",sep="") } else {dir13 <- NULL}
       if (covariate == TRUE && !is.null(covariatename) && !is.null(metagenome_data_species) && !is.null(taxa_species) && is.null(trait_names)) { dir14 <- paste(dir_prefix_name,"Pcov_species_Mcov_",ploidy,"x",sep="") } else {dir14 <- NULL}
       dir_list <- c(dir1,dir2,dir3,dir4,dir5,dir6,dir7,dir8,dir9,dir10,dir11,dir12,dir13,dir14)
-      
+
       for(job in c(dir_list)) {
         dir.create(job)
         setwd(job)
@@ -153,23 +155,23 @@ metaGWAS <- function(
         dir.create("qqplots")
         dir.create("manplots")
         dir.create("normal_distribution")
-        
+
         # if(is.null(trait_names)) {corr_coeff <- NULL}
         if(grepl("_strain_",job) && !grepl("_pheno_",job)) {taxa_level <- "strain"}
         if(grepl("_species_",job) && !grepl("_pheno_",job)) {taxa_level <- "species"}
         if(grepl("_pheno_",job)) {taxa_level <- "notaxa"}
-        
+
         if("2" %in% ploidy_levels && ploidy == 2){genotype_data <- file_ploidy_2}
         if("4" %in% ploidy_levels && ploidy == 4){genotype_data <- file_ploidy_4}
         if("6" %in% ploidy_levels && ploidy == 6){genotype_data <- file_ploidy_6}
         if("8" %in% ploidy_levels && ploidy == 8){genotype_data <- file_ploidy_8}
-        
+
         if(!is.null(metag)) {trait_associated_covariates <- TRUE} else {trait_associated_covariates <- FALSE}
         metagenome_data <- NULL
         if(grepl("_strain_",job)) {metagenome_data <- metagenome_data_strains}
         if(grepl("_species_",job)) {metagenome_data <- metagenome_data_species}
         if(grepl("pheno_nocov",job)) {metagenome_data <- NULL}
-        
+
         #############################################################################################################################################################################
         # organize and generate required files
         ######################################
@@ -200,7 +202,7 @@ metaGWAS <- function(
           taxa_all_list <- colnames(traits)
           for (i in 1:ncol(traits)){
             tiff(paste("./normal_distribution/",colnames(traits)[i],"_quantification.tiff",sep=""), width=5, height=5, units = 'in', res = 300, compression = 'lzw')
-            plot <- hist(sqrt(traits[,i]+1), main=paste(colnames(traits)[i]," (n=",length(na.omit(traits[,i])),")"), xlab="log transformation", 
+            plot <- hist(sqrt(traits[,i]+1), main=paste(colnames(traits)[i]," (n=",length(na.omit(traits[,i])),")"), xlab="log transformation",
                          border="grey", col="cornflowerblue")
             dev.off()
           }
@@ -213,7 +215,7 @@ metaGWAS <- function(
           traits <- merge(traits, samples, by="Plant_ID")
         }
         if (!is.null(metagenome_data)){traits_metag <- traits}
-        
+
         if (!is.null(phenotype_data)){
           traits_pheno <- read.delim(paste("../",phenotype_data,sep=""), header=T, sep="\t", check.names=FALSE,stringsAsFactors=FALSE)
           colnames(traits_pheno)[1] <- "Plant_ID"
@@ -221,7 +223,7 @@ metaGWAS <- function(
           all_traits_pheno <- colnames(traits_pheno)[2:ncol(traits_pheno)]
           for (i in 2:ncol(traits_pheno)){
             tiff(paste("./normal_distribution/",colnames(traits_pheno)[i],".tiff",sep=""), width=5, height=5, units = 'in', res = 300, compression = 'lzw')
-            plot <- hist(traits_pheno[,i], main=paste(colnames(traits_pheno)[i]," (n=",length(na.omit(traits_pheno[,i])),")"), 
+            plot <- hist(traits_pheno[,i], main=paste(colnames(traits_pheno)[i]," (n=",length(na.omit(traits_pheno[,i])),")"),
                          xlab="Phenotypic Values", border="grey", col="cornflowerblue")
             dev.off()
           }
@@ -251,8 +253,8 @@ metaGWAS <- function(
         names(traits) <- sub(".y$", "", names(traits))
         traits <- traits[, !duplicated(colnames(traits))]
         write.csv(traits, "traits.csv", row.names=F, quote = FALSE)
-        
-        
+
+
         #############################################################################################################################################################################
         # Perform Genome-Wide Association Analysis
         ##########################################
@@ -263,14 +265,14 @@ metaGWAS <- function(
           if(taxa_level == "species") {taxa <- c(taxa_species)}
         }
         taxalist <- match(taxa,names(traits)); taxalist <- taxalist[!is.na(taxalist)]
-        
+
         for (j in c(taxalist)) {
           i <- names(traits)[j]
           pheno <- subset(traits, select=c(1,j))
           pheno <- na.omit(pheno)
           if (drop_zero_trait_value == TRUE) { pheno[,2][pheno[,2] == "0"] <- NA }
           traitname <- (colnames(pheno))[2]
-          
+
           # Compute correlation coefficients or extract it from pre-computed correlations.
           if (trait_associated_covariates == TRUE) {
             if (grepl(".txt", corr_coeff)) {
@@ -321,7 +323,7 @@ metaGWAS <- function(
                 write.table(summout,paste("./correlations/",i,"_fit_multiple_regression_fit.txt",sep=""), row.names=T, quote = FALSE, sep="\t")
               }
               write.table(tcorr,paste("./correlations/",i,".txt",sep=""), row.names=T, quote = FALSE, sep="\t")
-              
+
               rtcorr <- row.names(tcorr)
               plotcor <- tdata[,c(rtcorr,i)]
               plotcor <- plotcor %>% mutate_if(is.numeric, round, digits = 12)
@@ -383,7 +385,7 @@ metaGWAS <- function(
             pheno <- merge(pheno, covariates, by=c("Plant_ID"))
             pheno <- subset(pheno, select=-c(Taxa))
           }
-          
+
           if (!is.null(covariatename)) {
             covariates <- traits[traits$Plant_ID %in% pheno$Plant_ID, ]
             covariates <- subset(covariates, select=c("Plant_ID",i,covariatename))
@@ -393,7 +395,7 @@ metaGWAS <- function(
             pheno <- merge(pheno,covariates, by=c("Plant_ID"))
           }
           if (covariate == TRUE){pheno <- pheno[,-c(3:5)]}
-          
+
           # Run model with metagenome and generate residual
           if(metag_method == "Aitchison" && !is.null(metag)) {
             covariates <- traits[traits$Plant_ID %in% pheno$Plant_ID, ]
@@ -421,7 +423,7 @@ metaGWAS <- function(
             pheno <- merge(pheno_gwas, pheno, by="Plant_ID")
           }
           write.csv(pheno,'pheno.csv', row.names=F, quote = FALSE)
-          
+
           geno <- read.table(paste("../",genotype_data,sep=""), header=T, sep="\t", check.names=FALSE,stringsAsFactors=FALSE)
           samples <- lapply(pheno[,1], as.character)
           geno_hold <- subset(geno, select=c(1:5))
@@ -457,7 +459,7 @@ metaGWAS <- function(
           if (ploidy == 6){
             dG <- geno
             dG$freq0 <- (rowSums(dG == "0", na.rm = TRUE))*6 + (rowSums(dG == "1", na.rm = TRUE))*5 +
-              (rowSums(dG == "2", na.rm = TRUE))*4 + (rowSums(dG == "3", na.rm = TRUE))*3 + 
+              (rowSums(dG == "2", na.rm = TRUE))*4 + (rowSums(dG == "3", na.rm = TRUE))*3 +
               (rowSums(dG == "4", na.rm = TRUE))*2 + (rowSums(dG == "5", na.rm = TRUE))*1
             dG$freq1 <- (rowSums(dG == "1", na.rm = TRUE))*1 + (rowSums(dG == "2", na.rm = TRUE))*2 +
               (rowSums(dG == "3", na.rm = TRUE))*3 + (rowSums(dG == "4", na.rm = TRUE))*4 +
@@ -471,9 +473,9 @@ metaGWAS <- function(
           }
           if (ploidy == 8){
             dG <- geno
-            dG$freq0 <- (rowSums(dG == "0", na.rm = TRUE))*8 + (rowSums(dG == "1", na.rm = TRUE))*7 + 
+            dG$freq0 <- (rowSums(dG == "0", na.rm = TRUE))*8 + (rowSums(dG == "1", na.rm = TRUE))*7 +
               (rowSums(dG == "2", na.rm = TRUE))*6 + (rowSums(dG == "3", na.rm = TRUE))*5 +
-              (rowSums(dG == "4", na.rm = TRUE))*4 + (rowSums(dG == "5", na.rm = TRUE))*3 + 
+              (rowSums(dG == "4", na.rm = TRUE))*4 + (rowSums(dG == "5", na.rm = TRUE))*3 +
               (rowSums(dG == "6", na.rm = TRUE))*2 + (rowSums(dG == "7", na.rm = TRUE))*1
             dG$freq1 <- (rowSums(dG == "1", na.rm = TRUE))*1 + (rowSums(dG == "2", na.rm = TRUE))*2 +
               (rowSums(dG == "3", na.rm = TRUE))*3 + (rowSums(dG == "4", na.rm = TRUE))*4 +
@@ -485,9 +487,9 @@ metaGWAS <- function(
             dG$maf <- as.numeric(dG$min)/as.numeric(dG$sum)
             dG <- dG[dG$maf >= maf, ]
             geno <- dG[,-c((ncol(dG)-4):ncol(dG))]
-            
+
           }
-          
+
           pop_struc <- function() {
             pop_data <- subset(geno, select=-c(1:5))
             pop_data$no_missing <- apply(pop_data, MARGIN = 1, FUN = function(x) length(x[is.na(x)]) )
@@ -526,7 +528,7 @@ metaGWAS <- function(
           G_matrix <- read.table(file=paste(pop,"_",Gmethod,"_",ploidy,"x.txt",sep=""), header=T, sep="\t", check.names=FALSE)
           if (gwas_method == "GLM") {G_matrix[G_matrix >= 0] <- 1}
           if (gwas_method == "glm") {G_matrix[G_matrix >= "0"] <- "1"}
-          
+
           data <- read.GWASpoly(ploidy=ploidy, pheno.file="pheno.csv", geno.file="geno.csv", format="numeric", n.traits=1, delim=",")
           Kinship <- set.K(data, K=as.matrix(G_matrix), LOCO=FALSE)
           if(LOCO == TRUE){Kinship <- set.K(data, LOCO = TRUE, n.core=cores)}
@@ -543,20 +545,20 @@ metaGWAS <- function(
                   models <- c("additive","1-dom-ref","1-dom-alt")
                 }
               }
-              if ( ploidy == "4" ) { 
+              if ( ploidy == "4" ) {
                 GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom","additive"), n.core = cores, quiet = FALSE, params=params)
                 models <- c("1-dom-ref","1-dom-alt","2-dom-ref","2-dom-alt","additive")
               }
-              if ( ploidy == "6" ) { 
+              if ( ploidy == "6" ) {
                 GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom","3-dom","additive"), n.core = cores, quiet = FALSE, params=params)
                 models <- c("1-dom-ref","1-dom-alt","2-dom-ref","2-dom-alt","3-dom-ref","3-dom-alt","additive")
               }
-              if ( ploidy == "8" ) { 
-                GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom", "3-dom", "4-dom","additive"), 
+              if ( ploidy == "8" ) {
+                GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom", "3-dom", "4-dom","additive"),
                                         traits=c(traitname), n.core = cores, quiet = FALSE, params=params)
                 models <- c("1-dom-ref","1-dom-alt","2-dom-ref","2-dom-alt","3-dom-ref","3-dom-alt","4-dom-ref","4-dom-alt","additive")
               }
-            } 
+            }
             if (!is.null(covariatename) ){
               params <- set.params(fixed=c(colnames(pheno)[3:ncol(pheno)]), fixed.type=rep("numeric",(ncol(pheno)-2)),n.PC=(ncol(pheno)-2),MAF=maf,geno.freq=0.99,P3D=TRUE)
               if ( ploidy == "2" ) {
@@ -569,16 +571,16 @@ metaGWAS <- function(
                   models <- c("additive","1-dom-ref","1-dom-alt")
                 }
               }
-              if ( ploidy == "4" ) { 
+              if ( ploidy == "4" ) {
                 GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom","additive"), n.core = cores, quiet = FALSE, params=params)
                 models <- c("1-dom-ref","1-dom-alt","2-dom-ref","2-dom-alt","additive")
               }
-              if ( ploidy == "6" ) { 
+              if ( ploidy == "6" ) {
                 GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom","3-dom","additive"), n.core = cores, quiet = FALSE, params=params)
                 models <- c("1-dom-ref","1-dom-alt","2-dom-ref","2-dom-alt","3-dom-ref","3-dom-alt","additive")
               }
-              if ( ploidy == "8" ) { 
-                GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom", "3-dom", "4-dom","additive"), 
+              if ( ploidy == "8" ) {
+                GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom", "3-dom", "4-dom","additive"),
                                         traits=c(traitname), n.core = cores, quiet = FALSE, params=params)
                 models <- c("1-dom-ref","1-dom-alt","2-dom-ref","2-dom-alt","3-dom-ref","3-dom-alt","4-dom-ref","4-dom-alt","additive")
               }
@@ -596,7 +598,7 @@ metaGWAS <- function(
             if(ncol(pheno) > 4){
               params <- set.params(fixed=c("PC1","PC2","PC3"), fixed.type=rep("numeric",3),n.PC=3,MAF=maf,geno.freq=0.99,P3D=TRUE)
             }
-            
+
             if ( ploidy == "2" ) {
               if (model == "Add"){
                 GWAS.fitted <- GWASpoly(Kinship, models = c("additive"), n.core = cores, quiet = FALSE, params=params)
@@ -607,28 +609,28 @@ metaGWAS <- function(
                 models <- c("additive","1-dom-ref","1-dom-alt")
               }
             }
-            if ( ploidy == "4" ) { 
+            if ( ploidy == "4" ) {
               GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom","additive"), n.core = cores, quiet = FALSE, params=params)
               models <- c("1-dom-ref","1-dom-alt","2-dom-ref","2-dom-alt","additive")
             }
-            if ( ploidy == "6" ) { 
+            if ( ploidy == "6" ) {
               GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom","3-dom","additive"), n.core = cores, quiet = FALSE, params=params)
               models <- c("1-dom-ref","1-dom-alt","2-dom-ref","2-dom-alt","3-dom-ref","3-dom-alt","additive")
             }
-            if ( ploidy == "8" ) { 
-              GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom", "3-dom", "4-dom","additive"), 
+            if ( ploidy == "8" ) {
+              GWAS.fitted <- GWASpoly(Kinship, models = c("1-dom","2-dom", "3-dom", "4-dom","additive"),
                                       traits=c(traitname), n.core = cores, quiet = FALSE, params=params)
               models <- c("1-dom-ref","1-dom-alt","2-dom-ref","2-dom-alt","3-dom-ref","3-dom-alt","4-dom-ref","4-dom-alt","additive")
             }
           }
-          
+
           # qqplot(GWAS.fitted) + ggtitle(label="Q-Q plot")
-          
+
           GWAS_logP <- GWAS.fitted@scores[[colnames(pheno[2])]]
           GWAS_logP$no_missing <- apply(GWAS_logP, MARGIN = 1, FUN = function(x) length(x[is.na(x)]) )
           GWAS_logP <- subset(GWAS_logP, no_missing != ncol(GWAS_logP)-1)
           GWAS_logP <- subset(GWAS_logP, select=-c(no_missing))
-          
+
           if ( !is.null(GWAS_logP) ) {
             GWAS_effects <- GWAS.fitted@effects[[colnames(pheno[2])]]
             GWAS_effects$no_missing <- apply(GWAS_effects, MARGIN = 1, FUN = function(x) length(x[is.na(x)]) )
@@ -636,7 +638,7 @@ metaGWAS <- function(
             GWAS_effects <- subset(GWAS_effects, select=-c(no_missing))
             write.table(GWAS_logP, file=paste("./pvalues/","logP",colnames(pheno[2]),".txt",sep=""), row.names=T, quote = FALSE, sep = "\t")
             write.table(GWAS_effects, file=paste("./effects/","Effects",colnames(pheno[2]),".txt",sep=""), row.names=T, quote = FALSE, sep = "\t")
-            
+
             pvalues <- as.data.frame(10^(-1 * as.data.frame(GWAS_logP)))
             pvalues <- as.data.frame(reshape2::melt(pvalues)); colnames(pvalues) <- c("model","pvalue")
             pvalues <- na.omit(pvalues); pvalues$pvalue <- as.numeric(as.character(pvalues$pvalue))
@@ -663,14 +665,14 @@ metaGWAS <- function(
               qqplot_metric <- rbind(qqplot_metric, qqplot_metric1)
             }
             write.table(qqplot_metric, file=paste("./qqplots/",colnames(pheno[2]),"_qqplot_metric.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
-            
-            
+
+
             if (ploidy == 2) {
               qqplot <- ggplot(ps, aes(x=expected, y=observed, group=model)) + facet_wrap(~model, ncol=1)+
                 geom_point(shape = 16, size = 2, colour="cornflowerblue") + scale_shape_identity()+
                 geom_abline(intercept = 0, slope = 1, alpha = 0.5, color="red", linetype="dashed", size=1.0)+
                 geom_ribbon(aes(x=expected, ymin=clower, ymax=cupper),alpha = 0.1) + theme_gray()+
-                theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"), 
+                theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"),
                       strip.text = element_text(size=10, color="black"))+
                 xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno[2])))
               ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno[2]),"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=4, units=("in"), dpi=120, compression = "lzw")
@@ -680,7 +682,7 @@ metaGWAS <- function(
                 geom_point(shape = 16, size = 2, colour="cornflowerblue") + scale_shape_identity()+
                 geom_abline(intercept = 0, slope = 1, alpha = 0.5, color="red", linetype="dashed", size=1.0)+
                 geom_ribbon(aes(x=expected, ymin=clower, ymax=cupper),alpha = 0.1) + theme_gray()+
-                theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"), 
+                theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"),
                       strip.text = element_text(size=10, color="black"))+
                 xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno[2])))
               ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno[2]),"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=8, units=("in"), dpi=120, compression = "lzw")
@@ -690,7 +692,7 @@ metaGWAS <- function(
                 geom_point(shape = 16, size = 2, colour="cornflowerblue") + scale_shape_identity()+
                 geom_abline(intercept = 0, slope = 1, alpha = 0.5, color="red", linetype="dashed", size=1.0)+
                 geom_ribbon(aes(x=expected, ymin=clower, ymax=cupper),alpha = 0.1) + theme_gray()+
-                theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"), 
+                theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"),
                       strip.text = element_text(size=10, color="black"))+
                 xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno[2])))
               ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno[2]),"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=12, units=("in"), dpi=120, compression = "lzw")
@@ -700,12 +702,12 @@ metaGWAS <- function(
                 geom_point(shape = 16, size = 2, colour="cornflowerblue") + scale_shape_identity()+
                 geom_abline(intercept = 0, slope = 1, alpha = 0.5, color="red", linetype="dashed", size=1.0)+
                 geom_ribbon(aes(x=expected, ymin=clower, ymax=cupper),alpha = 0.1) + theme_gray()+
-                theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"), 
+                theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"),
                       strip.text = element_text(size=10, color="black"))+
                 xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno[2])))
               ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno[2]),"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=16, units=("in"), dpi=120, compression = "lzw")
             }
-            
+
             # data_r2_fdr <- set.threshold(GWAS.fitted,method="FDR",level=0.05,n.core=cores)
             # SigQTL_r2_fdr <- fit.QTL(data_r2_fdr, trait=paste(traitname), qtl=qtl[,c("Marker","Model")])
             # if (is.null(SigQTL_r2_fdr) == "TRUE") {print ("file is empty")} else{
@@ -733,7 +735,7 @@ metaGWAS <- function(
             #       write.table(SigQTL_r2_permute, paste("./sigpermute/","Significant_R2_",colnames(pheno[2]),"_permute0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
             #     }}
             # }
-            
+
             data_fdr <- set.threshold(GWAS.fitted,method="FDR",level=0.05,n.core=cores)
             SigQTL_fdr <- get.QTL(data_fdr)
             if (is.null(SigQTL_fdr) == "TRUE") {print ("file is empty")} else{
@@ -765,17 +767,17 @@ metaGWAS <- function(
             scores$Chrom <- gsub("_.+$", "", scores$rn); scores$bp <- gsub("^.+_", "", scores$rn); scores$rn <- NULL
             scores <- as.data.frame(reshape2::melt(scores, id=c("Chrom","bp"))); colnames(scores) <- c("Chrom","bp","models","scores")
             scores <-na.omit(scores); scores$scores <- as.numeric(as.character(scores$scores)); scores$bp <- as.numeric(as.character(scores$bp))
-            
+
             fdr_threshold <- t(data_fdr@threshold)
             fdr_threshold <- setDT(as.data.frame(fdr_threshold), keep.rownames = TRUE)
             colnames(fdr_threshold) <- c("model","threshold")
             hline.fdr <- data.frame(z1 = c(fdr_threshold$threshold), models = c(fdr_threshold$model))
-            
+
             Bonferroni_threshold <- t(data_Bonferroni@threshold)
             Bonferroni_threshold <- setDT(as.data.frame(Bonferroni_threshold), keep.rownames = TRUE)
             colnames(Bonferroni_threshold) <- c("model","threshold")
             hline.Bonferroni <- data.frame(z2 = c(Bonferroni_threshold$threshold), models = c(Bonferroni_threshold$model))
-            
+
             if (permutations >= 100) {
               permute_threshold <- t(data_permute@threshold)
               permute_threshold <- setDT(as.data.frame(permute_threshold), keep.rownames = TRUE)
@@ -796,8 +798,8 @@ metaGWAS <- function(
               mutate(Chrom = factor(Chrom, levels = unique(Chrom)),
                      Chrom_bp = interaction(Chrom, bp, sep = "_"))
             scores$Chrom <- factor(scores$Chrom, levels = sort(as.numeric(levels(scores$Chrom))))
-            
-            
+
+
             if (ploidy == 2) {
               if(model == "Add"){
                 dim=10
@@ -816,14 +818,14 @@ metaGWAS <- function(
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange')) +
-                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey10", size=1.0, linetype="dashed")+ 
+                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey10", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z4), hline.suggestive_threshold, color="cornflowerblue", size=1.0, linetype="dashed")+
                   facet_grid(models ~ Chrom, scales="free_x", space="free_x") + xlab("\nChromosomes and Physical Map Position (bp)")+ ylab("-log10(P)\n") +
                   theme(panel.spacing = unit(0.5, "lines"), panel.grid.major = element_line(colour ="grey95"), panel.background = element_blank(),
-                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(), 
-                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"), 
+                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(),
+                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"),
                         axis.line=element_line(colour="white")) +
                   theme(legend.position = "none") + theme(plot.title = element_text(hjust = 0.5)) + ylim(c(0,NA)) +
                   labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
@@ -840,20 +842,20 @@ metaGWAS <- function(
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange')) +
-                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey50", size=1.0, linetype="dashed")+ 
-                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+ 
+                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey50", size=1.0, linetype="dashed")+
+                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z4), hline.suggestive_threshold, color="cornflowerblue", size=1.0, linetype="dashed")+
                   facet_grid(models ~ Chrom, scales="free_x", space="free_x") + xlab("\nChromosomes and Physical Map Position (bp)")+ ylab("-log10(P)\n") +
                   theme(panel.spacing = unit(0.5, "lines"), panel.grid.major = element_line(colour ="grey95"), panel.background = element_blank(),
-                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(), 
-                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"), 
+                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(),
+                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"),
                         axis.line=element_line(colour="white")) +
                   theme(legend.position = "none") + theme(plot.title = element_text(hjust = 0.5)) + ylim(c(0,NA)) +
                   labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
                 ggsave(file=paste("./manplots/","QTLprofile_",colnames(pheno[2]),".tiff",sep=""), plot=manplot, width=30, height=dim, units=("in"), dpi=600, compression = "lzw")
               }
-            }    
+            }
             if (ploidy == 4) {
               if (diversity == TRUE) {
                 manplot <- ggplot(scores, aes(x = Chrom_bp, y=scores, group=Chrom)) +
@@ -865,14 +867,14 @@ metaGWAS <- function(
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange')) +
-                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey10", size=1.0, linetype="dashed")+ 
-                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+ 
+                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey10", size=1.0, linetype="dashed")+
+                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z4), hline.suggestive_threshold, color="cornflowerblue", size=1.0, linetype="dashed")+
                   facet_grid(models ~ Chrom, scales="free_x", space="free_x") + xlab("\nChromosomes and Physical Map Position (bp)")+ ylab("-log10(P)\n") +
                   theme(panel.spacing = unit(0.5, "lines"), panel.grid.major = element_line(colour ="grey95"), panel.background = element_blank(),
-                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(), 
-                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"), 
+                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(),
+                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"),
                         axis.line=element_line(colour="white")) +
                   theme(legend.position = "none") + theme(plot.title = element_text(hjust = 0.5)) + ylim(c(0,NA)) +
                   labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
@@ -889,14 +891,14 @@ metaGWAS <- function(
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange')) +
-                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey50", size=1.0, linetype="dashed")+ 
-                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+ 
+                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey50", size=1.0, linetype="dashed")+
+                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z4), hline.suggestive_threshold, color="cornflowerblue", size=1.0, linetype="dashed")+
                   facet_grid(models ~ Chrom, scales="free_x", space="free_x") + xlab("\nChromosomes and Physical Map Position (bp)")+ ylab("-log10(P)\n") +
                   theme(panel.spacing = unit(0.5, "lines"), panel.grid.major = element_line(colour ="grey95"), panel.background = element_blank(),
-                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(), 
-                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"), 
+                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(),
+                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"),
                         axis.line=element_line(colour="white")) +
                   theme(legend.position = "none") + theme(plot.title = element_text(hjust = 0.5)) + ylim(c(0,NA)) +
                   labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
@@ -914,14 +916,14 @@ metaGWAS <- function(
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange')) +
-                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey10", size=1.0, linetype="dashed")+ 
-                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+ 
-                  geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+ 
+                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey10", size=1.0, linetype="dashed")+
+                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+
+                  geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z4), hline.suggestive_threshold, color="cornflowerblue", size=1.0, linetype="dashed")+
                   facet_grid(models ~ Chrom, scales="free_x", space="free_x") + xlab("\nChromosomes and Physical Map Position (bp)")+ ylab("-log10(P)\n") +
                   theme(panel.spacing = unit(0.5, "lines"), panel.grid.major = element_line(colour ="grey95"), panel.background = element_blank(),
-                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(), 
-                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"), 
+                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(),
+                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"),
                         axis.line=element_line(colour="white")) +
                   theme(legend.position = "none") + theme(plot.title = element_text(hjust = 0.5)) + ylim(c(0,NA)) +
                   labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
@@ -938,14 +940,14 @@ metaGWAS <- function(
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange')) +
-                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey50", size=1.0, linetype="dashed")+ 
-                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+ 
-                  geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+ 
+                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey50", size=1.0, linetype="dashed")+
+                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+
+                  geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z4), hline.suggestive_threshold, color="cornflowerblue", size=1.0, linetype="dashed")+
                   facet_grid(models ~ Chrom, scales="free_x", space="free_x") + xlab("\nChromosomes and Physical Map Position (bp)")+ ylab("-log10(P)\n") +
                   theme(panel.spacing = unit(0.5, "lines"), panel.grid.major = element_line(colour ="grey95"), panel.background = element_blank(),
-                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(), 
-                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"), 
+                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(),
+                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"),
                         axis.line=element_line(colour="white")) +
                   theme(legend.position = "none") + theme(plot.title = element_text(hjust = 0.5)) + ylim(c(0,NA)) +
                   labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
@@ -963,14 +965,14 @@ metaGWAS <- function(
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange')) +
-                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey10", size=1.0, linetype="dashed")+ 
-                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+ 
-                  geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+ 
+                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey10", size=1.0, linetype="dashed")+
+                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+
+                  geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z4), hline.suggestive_threshold, color="cornflowerblue", size=1.0, linetype="dashed")+
                   facet_grid(models ~ Chrom, scales="free_x", space="free_x") + xlab("\nChromosomes and Physical Map Position (bp)")+ ylab("-log10(P)\n") +
                   theme(panel.spacing = unit(0.5, "lines"), panel.grid.major = element_line(colour ="grey95"), panel.background = element_blank(),
-                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(), 
-                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"), 
+                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(),
+                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"),
                         axis.line=element_line(colour="white")) +
                   theme(legend.position = "none") + theme(plot.title = element_text(hjust = 0.5)) + ylim(c(0,NA)) +
                   labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
@@ -987,21 +989,21 @@ metaGWAS <- function(
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange',
                                               'cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange','cornflowerblue','orange')) +
-                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey50", size=1.0, linetype="dashed")+ 
-                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+ 
-                  geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+ 
+                  geom_hline(aes(yintercept = z1), hline.fdr, color="grey50", size=1.0, linetype="dashed")+
+                  geom_hline(aes(yintercept = z2), hline.Bonferroni, color="tomato", size=1.0, linetype="dashed")+
+                  geom_hline(aes(yintercept = z3), hline.permute, color="green4", size=1.0, linetype="dashed")+
                   geom_hline(aes(yintercept = z4), hline.suggestive_threshold, color="cornflowerblue", size=1.0, linetype="dashed")+
                   facet_grid(models ~ Chrom, scales="free_x", space="free_x") + xlab("\nChromosomes and Physical Map Position (bp)")+ ylab("-log10(P)\n") +
                   theme(panel.spacing = unit(0.5, "lines"), panel.grid.major = element_line(colour ="grey95"), panel.background = element_blank(),
-                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(), 
-                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"), 
+                        panel.border = element_blank(), strip.background = element_blank(), axis.text.x=element_blank(),
+                        strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"),
                         axis.line=element_line(colour="white")) +
                   theme(legend.position = "none") + theme(plot.title = element_text(hjust = 0.5)) + ylim(c(0,NA)) +
                   labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
                 ggsave(file=paste("./manplots/","QTLprofile_",colnames(pheno[2]),".tiff",sep=""), plot=manplot, width=30, height=50, units=("in"), dpi=300, compression = "lzw")
               }
-            }     
-            
+            }
+
             hline.fdr <- NULL
             hline.Bonferroni <- NULL
             hline.permute <- NULL
@@ -1013,22 +1015,14 @@ metaGWAS <- function(
       }
     }
   }
-  
-  
-  
+
+
+
   # p <- read.table("./FER_GWAS_pheno_nocov_2x/pvalues/logPNI_2021.txt", sep="\t", head = TRUE)
   # for (i in c(1:ncol(p))){
   #   q <- qvalue(10^-(p[,i]))
   #   q_value <- as.data.frame(q$qvalues)
   #   p[,paste(i)] <- q_value
   # }
-  
+
 }
-
-
-
-
-
-
-
-

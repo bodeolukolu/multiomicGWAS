@@ -1,11 +1,11 @@
 
 # Introduction
-metaGWAS is a flexible GWAS pipeline leveraging GWASpoly to perform genome-wide association analyses across ploidy levels from 2x to 8x. The pipeline can integrate secondary traits and host-associated metagenome/microbiome data as covariate, and it can also allow each microbial taxon to be treated as an independent phenotypic trait for GWAS. Relationship matrices are computed automatically: genomic relationship matrices (GRM) using AGHmatrix and microbiome/metagenome kernels using the Aitchison method for compositional data, enabling streamlined multi-omic association analyses.
+multiomicGWAS is a flexible GWAS pipeline leveraging GWASpoly to perform genome-wide association analyses across ploidy levels from 2 to 8. The pipeline can integrate secondary traits and host-associated metagenome/microbiome data as covariate, and it can also allow each microbial taxon to be treated as an independent phenotypic trait for GWAS. Relationship matrices are computed automatically: genomic relationship matrices (GRM) using AGHmatrix and microbiome/metagenome kernels using the Aitchison method for compositional data, enabling streamlined multi-omic association analyses.
 
 For questions, bugs, and suggestions, please contact bolukolu@utk.edu.
 
-## How to run metaGWAS
-Download the <run_parameters_metaGWAS.R>, edit parameters and run the pipeline.
+## How to run multiomicGWAS
+Download the <run_parameters_multiomicGWAS.R>, edit parameters and run the pipeline.
 
 ## Description of parameters
 

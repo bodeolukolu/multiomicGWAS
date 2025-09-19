@@ -1,4 +1,8 @@
-metaGWAS <- function(
+#!/usr/bin/env Rscript
+
+source("https://github.com/bodeolukolu/multiomicGWAS/raw/refs/heads/main/multiomicGWAS.R")
+
+multiomicGWAS <- (
     wdir = "./",
     projname = "GWAS",
     ploidy_levels = c("2","4","6","8"),
@@ -24,5 +28,3 @@ metaGWAS <- function(
     metag_data_strains = "metag.txt",
     metag_data_species = "metag.txt"
 )
-
-source()
