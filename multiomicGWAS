@@ -26,31 +26,23 @@ multiomicGWAS <- function(
     metag_data_strains = NULL,
     metag_data_species = NULL
 ) {
-  # install.packages("remotes")
-  # library("remotes")
-  # remotes::install_github("jendelman/GWASpoly")
-  library(GWASpoly)
-  library(qqplotr)
-  library(AGHmatrix)
-  library(corrplot)
-  library(ggcorrplot)
-  library(ggplot2)
-  library(plyr); library(dplyr)
-  library(car)
-  library(MASS)
-  library(Hmisc)
-  library(data.table)
-  library(stringr)
-  library(heatmaply)
-  library(ppcor)
-  library (zoo)
-  library(GGally)
-  library(reshape2)
-  library(AGHmatrix)
-  library(compositions)
-  library(sommer)
-  library(mice)
-  library(qvalue)
+load_packages <- function(pkgs) {
+  for (p in pkgs) {
+    if (!requireNamespace(p, quietly = TRUE)) {
+      install.packages(p, repos = "https://cloud.r-project.org")
+    }
+    suppressPackageStartupMessages(library(p, character.only = TRUE))
+  }
+}
+
+# List of required packages
+pkgs <- c("GWASpoly", "qqplotr", "AGHmatrix", "corrplot", "ggcorrplot", "ggplot2",
+  "plyr", "dplyr", "car", "MASS", "Hmisc", "data.table", "stringr",
+  "heatmaply", "ppcor", "zoo", "GGally", "reshape2", "compositions",
+  "sommer", "mice", "qvalue")
+
+# Call it once at the start of your function
+load_packages(pkgs)
 
 
   #############################################################################################################################################################################
@@ -75,10 +67,10 @@ multiomicGWAS <- function(
   covariate <- covariate_metag
   corr_coeff <- if(covariate_metag) "full" else NULL
   # Microbiome as phenotypes
-  if (!is.null(pheno_taxa_strain)) {taxa_strain <- pheno_taxa_strain} else {taxa_strain <- NULL}
-  if (!is.null(pheno_taxa_species)) {taxa_species <- pheno_taxa_species} else {taxa_species <- NULL}
-  if (!is.null(metag_data_strains)) {metagenome_data_strains <- metag_data_strains} else {metagenome_data_strains <- NULL}
-  if (!is.null(metag_data_species)) {metagenome_data_species <- metag_data_species} else {metagenome_data_species <- NULL}
+  taxa_strain <- pheno_taxa_strain
+  taxa_species <- pheno_taxa_species
+  metagenome_data_strains <- metag_data_strains
+  metagenome_data_species <- metag_data_species
   if (!is.null(model_effect)) {
     if ("Add" %in% model_effect && "Dom" %in% model_effect) {model <- "Add_Dom"}
     if ("Add" %in% model_effect && !("Dom" %in% model_effect)) {model <- "Add"}
@@ -91,7 +83,6 @@ multiomicGWAS <- function(
   threshold_Bonferroni <- bonferroni
   threshold_suggestive <- suggestive
   permutations <- perm
-  cores <- cores
 
 
   #############################################################################################################################################################################

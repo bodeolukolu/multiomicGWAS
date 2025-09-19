@@ -12,16 +12,10 @@ Download the <run_parameters_multiomicGWAS.R>, edit parameters and run the pipel
 
 ## Dependencies
 - GWASpoly
-- qqplotr
 - AGHmatrix
-- corrplot
-- ggcorrplot
+- qqplotr
 - ggplot2
-- plyr
 - dplyr
-- car
-- MASS
-- Hmisc
 - data.table
 - stringr
 - heatmaply
@@ -29,7 +23,6 @@ Download the <run_parameters_multiomicGWAS.R>, edit parameters and run the pipel
 - zoo
 - GGally
 - reshape2
-- AGHmatrix
 - compositions
 - sommer
 - mice
