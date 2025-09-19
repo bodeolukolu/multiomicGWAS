@@ -79,12 +79,12 @@ multiomicGWAS <- function(
   taxa_species <- pheno_taxa_species
   metagenome_data_strains <- metag_data_strains
   metagenome_data_species <- metag_data_species
-  if (!is.null(model_effect)) { 
+  if (!is.null(model_effect)) {
     if ("Add" %in% model_effect && "Dom" %in% model_effect) {model <- "Add_Dom"}
     if ("Add" %in% model_effect && !("Dom" %in% model_effect)) {model <- "Add"}
     if (!("Add" %in% model_effect) && "Dom" %in% model_effect) {model <- "Add_Dom"}
-  } else { 
-    model <- "Add" 
+  } else {
+    model <- "Add"
   }
   # Thresholds
   threshold_FDR <- fdr
@@ -94,7 +94,6 @@ multiomicGWAS <- function(
   cores <- cores
 
 
-  if (exists()) {  } else {  }
   #############################################################################################################################################################################
   # Specify other variables for metagenome-based analysis
   ##################################################
