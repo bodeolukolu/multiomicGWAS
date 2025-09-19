@@ -15,16 +15,16 @@ multiomicGWAS <- function(
     genofile_4x = "SNP.txt",
     genofile_6x = "SNP.txt",
     genofile_8x = "SNP.txt",
-    phenofile = "traits.txt",
+    phenofile = NULL,
     method = "MLM",
-    covariate_pheno = "trait",
-    covariate_metag = FALSE,
+    covariate_pheno = NULL,
+    covariate_metag = NULL,
     maf = "0.02",
     LOCO = FALSE,
-    pheno_taxa_strain = "taxa1",
-    pheno_taxa_species = "taxa2",
-    metag_data_strains = "metag.txt",
-    metag_data_species = "metag.txt"
+    pheno_taxa_strain = NULL,
+    pheno_taxa_species = NULL,
+    metag_data_strains = NULL,
+    metag_data_species = NULL
 ) {
   # install.packages("remotes")
   # library("remotes")
