@@ -56,13 +56,7 @@ load_packages(pkgs)
   file_ploidy_4 <- genofile_4x
   file_ploidy_6 <- genofile_6x
   file_ploidy_8 <- genofile_8x
-  if (is.null(phenofile)) {
-    cat("Phenotype data not provided.\n",
-        "If metagenome/microbiome data is provided, GWAS will use taxa abundance as phenotype.\n")
-    phenotype_data <- NULL
-  } else {
-    phenotype_data <- phenofile
-  }
+  phenotype_data <- phenofile
   covariatename <- covariate_pheno
   covariate <- covariate_metag
   corr_coeff <- if(covariate_metag) "full" else NULL
