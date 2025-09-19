@@ -75,10 +75,10 @@ multiomicGWAS <- function(
   covariate <- covariate_metag
   corr_coeff <- if(covariate_metag) "full" else NULL
   # Microbiome as phenotypes
-  taxa_strain <- pheno_taxa_strain
-  taxa_species <- pheno_taxa_species
-  metagenome_data_strains <- metag_data_strains
-  metagenome_data_species <- metag_data_species
+  if (!is.null(pheno_taxa_strain)) {taxa_strain <- pheno_taxa_strain} else {taxa_strain <- NULL}
+  if (!is.null(pheno_taxa_species)) {taxa_species <- pheno_taxa_species} else {taxa_species <- NULL}
+  if (!is.null(metag_data_strains)) {metagenome_data_strains <- metag_data_strains} else {metagenome_data_strains <- NULL}
+  if (!is.null(metag_data_species)) {metagenome_data_species <- metag_data_species} else {metagenome_data_strains <- NULL}
   if (!is.null(model_effect)) {
     if ("Add" %in% model_effect && "Dom" %in% model_effect) {model <- "Add_Dom"}
     if ("Add" %in% model_effect && !("Dom" %in% model_effect)) {model <- "Add"}
