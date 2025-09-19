@@ -11,10 +11,10 @@ multiomicGWAS <- function(
     suggestive = "5",
     perm = "1",
     cores = "1",
-    genofile_2x = "SNP.txt",
-    genofile_4x = "SNP.txt",
-    genofile_6x = "SNP.txt",
-    genofile_8x = "SNP.txt",
+    genofile_2x = NULL,
+    genofile_4x = NULL,
+    genofile_6x = NULL,
+    genofile_8x = NULL,
     phenofile = NULL,
     method = "MLM",
     covariate_pheno = NULL,
@@ -104,7 +104,7 @@ load_packages(pkgs)
 
   #############################################################################################################################################################################
   if (!is.null(trait_names) == (!is.null(taxa_strain) || !is.null(taxa_species))) {
-    print("Please provide <trait names> or <taxa names>. YOu can't provide both")
+  print("Please provide <trait names> or <taxa names>. YOu can't provide both")
   } else {
     for (ploidy in ploidy_levels) {
       metag <- NULL
@@ -573,13 +573,13 @@ load_packages(pkgs)
               params <- set.params(MAF=maf,geno.freq=0.99,P3D=TRUE)
             }
             if(ncol(pheno) == 3){
-              params <- set.params(fixed=c("PC1"), fixed.type=rep("numeric",1),n.PC=1,MAF=maf,geno.freq=0.99,P3D=TRUE)
+              params <- set.params(fixed=c(colnames(pheno)[3]), fixed.type=rep("numeric",1),n.PC=1,MAF=maf,geno.freq=0.99,P3D=TRUE)
             }
             if(ncol(pheno) == 4){
-              params <- set.params(fixed=c("PC1","PC2"), fixed.type=rep("numeric",2),n.PC=2,MAF=maf,geno.freq=0.99,P3D=TRUE)
+              params <- set.params(fixed=c(colnames(pheno)[3:4]), fixed.type=rep("numeric",2),n.PC=2,MAF=maf,geno.freq=0.99,P3D=TRUE)
             }
             if(ncol(pheno) > 4){
-              params <- set.params(fixed=c("PC1","PC2","PC3"), fixed.type=rep("numeric",3),n.PC=3,MAF=maf,geno.freq=0.99,P3D=TRUE)
+              params <- set.params(fixed=c(colnames(pheno)[3:5]), fixed.type=rep("numeric",3),n.PC=3,MAF=maf,geno.freq=0.99,P3D=TRUE)
             }
 
             if ( ploidy == "2" ) {
@@ -998,7 +998,6 @@ load_packages(pkgs)
       }
     }
   }
-
 
 
   # p <- read.table("./FER_GWAS_pheno_nocov_2x/pvalues/logPNI_2021.txt", sep="\t", head = TRUE)
