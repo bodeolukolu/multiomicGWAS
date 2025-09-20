@@ -104,7 +104,7 @@ load_packages(pkgs)
 
   #############################################################################################################################################################################
   if (!is.null(trait_names) == (!is.null(taxa_strain) || !is.null(taxa_species))) {
-  print("Please provide <trait names> or <taxa names>. YOu can't provide both")
+    print("Please provide <trait names> or <taxa names>. YOu can't provide both")
   } else {
     for (ploidy in ploidy_levels) {
       metag <- NULL
