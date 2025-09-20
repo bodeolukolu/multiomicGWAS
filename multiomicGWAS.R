@@ -629,12 +629,18 @@ load_packages(pkgs)
             ps <- ps[order(ps$model,ps$pvalue),]
             ps$observed <- -log10(ps$pvalue)
             ps$expected <- ps$model; ps$clower <- ps$model; ps$cupper <- ps$model
-            for (j in c(models)) {
-              count <- as.data.frame(table(ps$model)); count <- subset(count, Var1 == j); count <- count[,2]
-              ps$expected <- recode(ps$expected, "j = -log10(ppoints(count))")
-              p1 = (1 - ci) / 2; p2 = (1 + ci) / 2; shape1 = 1:count; shape2 = count:1
-              ps$clower <- recode(ps$clower, "j = -log10(qbeta(p1,shape1,shape2))")
-              ps$cupper <- recode(ps$cupper, "j = -log10(qbeta(p2,shape1,shape2))")
+            for (jj in models) {
+              count <- as.data.frame(table(ps$model))
+              count <- subset(count, Var1 == jj)
+              count <- count[, 2]
+              idx <- ps$model == jj
+              ps$expected[idx] <- -log10(ppoints(count))
+              p1 <- (1 - ci) / 2
+              p2 <- (1 + ci) / 2
+              shape1 <- 1:count
+              shape2 <- count:1
+              ps$clower[idx] <- -log10(qbeta(p1, shape1, shape2))
+              ps$cupper[idx] <- -log10(qbeta(p2, shape1, shape2))
             }
             ps$expected <- as.numeric(as.character(ps$expected))
             ps$clower <- as.numeric(as.character(ps$clower))
