@@ -20,7 +20,7 @@ source("https://github.com/bodeolukolu/multiomicGWAS/raw/refs/heads/main/multiom
 multiomicGWAS (
     wdir = "./",
     projname = "GWAS",
-    ploidy_levels = c("2","4","6","8"),
+    ploidy_levels = c(2,4,6,8),
     trait_names = c("trait1","trait2"),
     model_effect = c("Add","Dom"),
     fdr = TRUE,

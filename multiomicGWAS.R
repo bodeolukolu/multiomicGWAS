@@ -59,7 +59,11 @@ load_packages(pkgs)
   file_ploidy_6 <- genofile_6x
   file_ploidy_8 <- genofile_8x
   phenotype_data <- phenofile
-  covariatename <- unlist(strsplit(covariate_pheno, ","))
+  if (is.null(covariate_pheno) || covariate_pheno == "NULL") {
+    covariatename <- NULL
+  } else {
+    covariatename <- unlist(strsplit(covariate_pheno, ","))
+  }
   covariate <- covariate_metag
   corr_coeff <- if(covariate_metag) "full" else NULL
   # Microbiome as phenotypes
@@ -1062,17 +1066,7 @@ load_packages(pkgs)
             }
             tcorr <- NULL
           }
-          remove_empty_dirs <- function(path) {
-            dirs <- list.dirs(path, recursive = TRUE, full.names = TRUE)
-            dirs <- dirs[order(nchar(dirs), decreasing = TRUE)]
-            for (d in dirs) {
-              if (length(list.files(d, all.files = TRUE, no.. = TRUE)) == 0) {
-                unlink(d, recursive = TRUE)
-                message("Removed empty directory: ", d)
-              }
-            }
-          }
-          remove_empty_dirs("./")
+          unlink("./", recursive = FALSE)
           setwd("../")
         }
       }
