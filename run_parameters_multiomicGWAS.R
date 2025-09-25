@@ -24,8 +24,8 @@ multiomicGWAS (
     trait_names = c("trait1","trait2"),
     model_effect = c("Add","Dom"),
     fdr = TRUE,
-    bonferroni = TRUE,
-    suggestive = "5",
+    bonferroni = TRUE,                               
+    suggestive = "5",                                # set to NULL if not available
     perm = "1",
     cores = "1",
     genofile_2x = NULL,
