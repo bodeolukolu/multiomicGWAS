@@ -59,7 +59,7 @@ load_packages(pkgs)
   file_ploidy_6 <- genofile_6x
   file_ploidy_8 <- genofile_8x
   phenotype_data <- phenofile
-  if (is.null(covariate_pheno) || any(covariate_pheno %in% c("NULL","None",""))) {
+  if (any(covariate_pheno %in% c("NULL","None",""))) {
     covariatename <- NULL
   } else {
     covariatename <- (strsplit(covariate_pheno, ","))
