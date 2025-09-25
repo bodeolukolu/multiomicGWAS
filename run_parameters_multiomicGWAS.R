@@ -20,7 +20,7 @@ source("https://github.com/bodeolukolu/multiomicGWAS/raw/refs/heads/main/multiom
 multiomicGWAS (
     wdir = "./",
     projname = "GWAS",
-    ploidy_levels = c(2,4,6,8),
+    ploidy_levels = c("2","4","6","8"),
     trait_names = c("trait1","trait2"),
     model_effect = c("Add","Dom"),
     fdr = TRUE,
@@ -32,14 +32,14 @@ multiomicGWAS (
     genofile_4x = NULL,
     genofile_6x = NULL,
     genofile_8x = NULL,
-    phenofile = "traits.txt",
+    phenofile = "traits.txt",                         # set to NULL if not available
     method = c("MLM", "GLM"),
-    covariate_pheno = "trait",
+    covariate_pheno = c("trait1","trait2"),           # set to NULL if not available
     covariate_metag = FALSE,
     maf = "0.02",
     LOCO = FALSE,
-    pheno_taxa_strain = "taxa1",
-    pheno_taxa_species = "taxa2",
-    metag_data_strains = "metag.txt",
-    metag_data_species = "metag.txt"
+    pheno_taxa_strain = "taxa1",                      # set to NULL if not available
+    pheno_taxa_species = "taxa2",                     # set to NULL if not available
+    metag_data_strains = "metag.txt",                 # set to NULL if not available
+    metag_data_species = "metag.txt"                  # set to NULL if not available
 )

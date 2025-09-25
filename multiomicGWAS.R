@@ -16,7 +16,7 @@ multiomicGWAS <- function(
     genofile_6x = NULL,
     genofile_8x = NULL,
     phenofile = NULL,
-    method = "MLM",
+    method = c("GLM","MLM")
     covariate_pheno = NULL,
     covariate_metag = FALSE,
     maf = "0.02",
@@ -52,14 +52,14 @@ load_packages(pkgs)
   dir_prefix_name <- projname
   pop <- projname
   ploidy_levels <- as.numeric(ploidy_levels)
-  gwas_method <- strsplit(method, ",")[[1]]
+  gwas_method <- strsplit(method, ",")
   maf <- as.numeric(maf)
   file_ploidy_2 <- genofile_2x
   file_ploidy_4 <- genofile_4x
   file_ploidy_6 <- genofile_6x
   file_ploidy_8 <- genofile_8x
   phenotype_data <- phenofile
-  covariatename <- covariate_pheno
+  covariatename <- if (any(covariate_pheno %in% c("NULL", "None", ""))) {NULL} else {strsplit(covariate_pheno, ",")}
   covariate <- covariate_metag
   corr_coeff <- if(covariate_metag) "full" else NULL
   # Microbiome as phenotypes
@@ -68,7 +68,7 @@ load_packages(pkgs)
   metagenome_data_strains <- metag_data_strains
   metagenome_data_species <- metag_data_species
   if (!is.null(model_effect)) {
-    model_effect <- strsplit(model_effect, ",")[[1]]
+    model_effect <- strsplit(model_effect, ",")
     if ("Add" %in% model_effect && "Dom" %in% model_effect) {model <- "Add_Dom"}
     if ("Add" %in% model_effect && !("Dom" %in% model_effect)) {model <- "Add"}
     if (!("Add" %in% model_effect) && "Dom" %in% model_effect) {model <- "Add_Dom"}
@@ -635,6 +635,7 @@ load_packages(pkgs)
               colnames(GWAS_effects) <- gsub("_effects", "", colnames(GWAS_effects)); GWAS_effects <- GWAS_effects[,-1]
 
               pvalues <- as.data.frame(10^(-1 * as.data.frame(GWAS_logP)))
+              if(ncol(pvalues) ==1 ){colnames(pvalues) <- models}
               pvalues <- as.data.frame(reshape2::melt(pvalues)); colnames(pvalues) <- c("model","pvalue")
               pvalues <- na.omit(pvalues); pvalues$pvalue <- as.numeric(as.character(pvalues$pvalue))
               ps <- pvalues; ci <- 0.95
@@ -644,9 +645,12 @@ load_packages(pkgs)
               ps$expected <- ps$clower <- ps$cupper <- rep(NA_real_, nrow(ps))
 
               for (jj in models) {
-                count <- as.data.frame(table(ps$model))
-                count <- subset(count, Var1 == jj)
-                count <- count[, 2]
+                count_df <- as.data.frame(table(ps$model))
+                count_sub <- subset(count_df, Var1 == jj)  # use count_sub here
+
+                if (nrow(count_sub) == 0) next  # skip if no rows
+
+                count <- count_sub[, 2]  # get the number of points
                 idx <- ps$model == jj
 
                 ps$expected[idx] <- -log10(ppoints(count))
@@ -664,8 +668,8 @@ load_packages(pkgs)
               ps$cupper <- as.numeric(as.character(ps$cupper))
               log10Pe <- expression(paste("Expected -log"[10],plain(P),sep="")); log10Po <- expression(paste("Observed -log"[10], plain(P),sep=""))
               qqplot_metric <- setNames(data.frame(matrix(ncol = 3, nrow = 0)), c("model","dev_norm_avGW"))
-              for (j in c(models)) {
-                psout <- subset(ps, ps$model == j)
+              for (jjj in c(models)) {
+                psout <- subset(ps, ps$model == jjj)
                 dev_norm_av <- round(mean(psout$observed - psout$expected), digits=5)
                 qqplot_metric1 <- as.data.frame(t(c(j,dev_norm_av))); names(qqplot_metric1) <- c("model","dev_norm_avGW")
                 qqplot_metric <- rbind(qqplot_metric, qqplot_metric1)
@@ -790,7 +794,8 @@ load_packages(pkgs)
               colnames(Bonferroni_threshold) <- c("model","threshold")
               hline.Bonferroni <- data.frame(z2 = c(Bonferroni_threshold$threshold), models = c(Bonferroni_threshold$model))
 
-              fdr_suggestive <- fdr_threshold; fdr_suggestive$threshold <- c(threshold_suggestive,threshold_suggestive,threshold_suggestive)
+              suggestive_threshold <- fdr_threshold
+              suggestive_threshold$threshold <- rep(threshold_suggestive, nrow(suggestive_threshold))
               hline.suggestive <- data.frame(z1 = c(suggestive_threshold$threshold), models = c(suggestive_threshold$model))
 
 
@@ -819,7 +824,7 @@ load_packages(pkgs)
               legend_df <- data.frame(
                 x = 1:length(c("FDR", "Bonferroni", "Permutation", "Suggestive")),
                 y = 1,  # dummy y, won't affect plot
-                label = thresholds,
+                label = c("FDR", "Bonferroni", "Permutation", "Suggestive"),
                 color = c("grey10", "tomato", "green4", "cornflowerblue")
               )
               if(is.null(threshold_suggestive)) {threshold_suggested <- FALSE} else {threshold_suggested <- TRUE}
