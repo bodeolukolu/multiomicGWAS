@@ -59,7 +59,7 @@ load_packages(pkgs)
   file_ploidy_6 <- genofile_6x
   file_ploidy_8 <- genofile_8x
   phenotype_data <- phenofile
-  covariatename <- (strsplit(covariate_pheno, ","))
+  covariatename <- unlist(strsplit(covariate_pheno, ","))
   covariate <- covariate_metag
   corr_coeff <- if(covariate_metag) "full" else NULL
   # Microbiome as phenotypes
