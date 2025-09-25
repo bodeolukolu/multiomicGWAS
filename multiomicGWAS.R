@@ -135,8 +135,7 @@ load_packages(pkgs)
           dir.create(job)
           setwd(job)
           dir.create("correlations")
-          dir.create("effects")
-          dir.create("pvalues")
+          dir.create("scores_effects")
           dir.create("sigFDR")
           dir.create("sigBonferroni")
           dir.create("sigSuggestive")
@@ -512,8 +511,7 @@ load_packages(pkgs)
             write.csv(geno,'geno.csv', row.names=F, quote = FALSE)
             # geno <- read.csv("geno.csv", header=T, sep=",", fill=TRUE, check.names=FALSE)
             G_matrix <- read.table(file=paste(pop,"_",Gmethod,"_",ploidy,"x.txt",sep=""), header=T, sep="\t", check.names=FALSE)
-            if (gwas_method == "GLM") {G_matrix[G_matrix >= 0] <- 1}
-            if (gwas_method == "glm") {G_matrix[G_matrix >= "0"] <- "1"}
+            if (tolower(gwas_method) == "glm") {G_matrix[G_matrix >= 0] <- 1}
 
             data <- read.GWASpoly(ploidy=ploidy, pheno.file="pheno.csv", geno.file="geno.csv", format="numeric", n.traits=1, delim=",")
             Kinship <- set.K(data, K=as.matrix(G_matrix), LOCO=FALSE)
@@ -628,9 +626,7 @@ load_packages(pkgs)
               GWAS_effects <- cbind(SNP = rownames(GWAS_effects), GWAS_effects)
               GWAS_scores_effects <- merge(GWAS_logP, GWAS_effects, by=c("SNP"))
 
-              write.table(GWAS_logP, file=paste("./pvalues/","logP",colnames(pheno[2]),".txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
-              write.table(GWAS_effects, file=paste("./effects/","Effects",colnames(pheno[2]),".txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
-              write.table(GWAS_scores_effects, file=paste("./","score_effects_",colnames(pheno[2]),".txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+              write.table(GWAS_scores_effects, file=paste("./scores_effects/","score_effects_",colnames(pheno[2]),".txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
               colnames(GWAS_logP) <- gsub("_scores", "", colnames(GWAS_logP)); GWAS_logP <- GWAS_logP[,-1]
               colnames(GWAS_effects) <- gsub("_effects", "", colnames(GWAS_effects)); GWAS_effects <- GWAS_effects[,-1]
 
@@ -1066,6 +1062,17 @@ load_packages(pkgs)
             }
             tcorr <- NULL
           }
+          remove_empty_dirs <- function(path) {
+            dirs <- list.dirs(path, recursive = TRUE, full.names = TRUE)
+            dirs <- dirs[order(nchar(dirs), decreasing = TRUE)]
+            for (d in dirs) {
+              if (length(list.files(d, all.files = TRUE, no.. = TRUE)) == 0) {
+                unlink(d, recursive = TRUE)
+                message("Removed empty directory: ", d)
+              }
+            }
+          }
+          remove_empty_dirs("./")
           setwd("../")
         }
       }
