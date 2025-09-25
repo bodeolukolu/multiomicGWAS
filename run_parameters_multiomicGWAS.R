@@ -17,10 +17,10 @@
 
 source("https://github.com/bodeolukolu/multiomicGWAS/raw/refs/heads/main/multiomicGWAS.R")
 
-multiomicGWAS <- (
+multiomicGWAS (
     wdir = "./",
     projname = "GWAS",
-    ploidy_levels = c("2","4","6","8"),
+    ploidy_levels = c(2,4,6,8),
     trait_names = c("trait1","trait2"),
     model_effect = c("Add","Dom"),
     fdr = TRUE,
@@ -33,7 +33,7 @@ multiomicGWAS <- (
     genofile_6x = NULL,
     genofile_8x = NULL,
     phenofile = "traits.txt",
-    method = "MLM",
+    method = c("MLM", "GLM"),
     covariate_pheno = "trait",
     covariate_metag = FALSE,
     maf = "0.02",
