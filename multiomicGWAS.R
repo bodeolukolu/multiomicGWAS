@@ -143,7 +143,6 @@ load_packages(pkgs)
           dir.create("sigFDR")
           dir.create("sigBonferroni")
           dir.create("sigSuggestive")
-          dir.create("Meff")
           dir.create("sigpermute")
           dir.create("qqplots")
           dir.create("manplots")
@@ -1066,7 +1065,14 @@ load_packages(pkgs)
             }
             tcorr <- NULL
           }
-          unlink("./", recursive = FALSE)
+          delete_empty_dirs <- function(path = "./") {
+            dirs <- list.dirs(path, recursive = TRUE, full.names = TRUE)
+            empty_dirs <- dirs[sapply(dirs, function(d) length(list.files(d, all.files = TRUE, no.. = TRUE)) == 0)]
+            invisible(lapply(empty_dirs, unlink, recursive = TRUE, force = TRUE))
+            return(empty_dirs)
+          }
+          deleted <- delete_empty_dirs("./")
+          print(deleted)
           setwd("../")
         }
       }
