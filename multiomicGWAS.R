@@ -62,7 +62,7 @@ load_packages(pkgs)
   if (any(covariate_pheno %in% c("NULL","None",""))) {
     covariatename <- NULL
   } else {
-    covariatename <- (strsplit(covariate_pheno, ","))
+    covariatename <- unlist(strsplit(covariate_pheno, ","))
   }
   covariate <- covariate_metag
   corr_coeff <- if(covariate_metag) "full" else NULL
