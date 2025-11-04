@@ -178,6 +178,8 @@ load_packages(pkgs)
             return(tmp)
           }
           geno <- read.table(paste("../",genotype_data,sep=""), header=T, sep="\t", check.names=FALSE,stringsAsFactors=FALSE)
+          geno <- geno %>%
+           distinct(SNP, .keep_all = TRUE)
           taxa_all_list <- NULL
           if (!is.null(metagenome_data)){
             traits <- metag
@@ -413,6 +415,8 @@ load_packages(pkgs)
             write.csv(pheno,'pheno.csv', row.names=F, quote = FALSE)
 
             geno <- read.table(paste("../",genotype_data,sep=""), header=T, sep="\t", check.names=FALSE,stringsAsFactors=FALSE)
+            geno <- geno %>%
+              distinct(SNP, .keep_all = TRUE)
             samples <- lapply(pheno[,1], as.character)
             geno_hold <- subset(geno, select=c(1:5))
             for (i in 1:length(samples)){
