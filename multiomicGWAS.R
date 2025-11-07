@@ -619,7 +619,7 @@ load_packages(pkgs)
             SNP <- GWAS.fitted@map[["Marker"]]
             GWAS_logP<- data.frame(
               SNP = SNP,
-              scores  = GWAS.fitted@scores[[colnames(pheno)[2]]]
+              scores  = GWAS.fitted@scores[[colnames(pheno[2])]]
             )
             GWAS_logP$no_missing <- apply(GWAS_logP, MARGIN = 1, FUN = function(x) length(x[is.na(x)]) )
             GWAS_logP <- subset(GWAS_logP, no_missing != ncol(GWAS_logP)-2)
@@ -629,7 +629,7 @@ load_packages(pkgs)
             GWAS_logP <- cbind(SNP = rownames(GWAS_logP), GWAS_logP)
 
             if ( !is.null(GWAS_logP) ) {
-              GWAS_effects <- GWAS.fitted@effects[[colnames(pheno)[2]]]
+              GWAS_effects <- GWAS.fitted@effects[[colnames(pheno[2])]]
               GWAS_effects$no_missing <- apply(GWAS_effects, MARGIN = 1, FUN = function(x) length(x[is.na(x)]) )
               GWAS_effects <- subset(GWAS_effects, no_missing != ncol(GWAS_effects)-1)
               GWAS_effects <- subset(GWAS_effects, select=-c(no_missing))
@@ -813,7 +813,7 @@ load_packages(pkgs)
               data_sugg <- set.threshold(GWAS.fitted,method="FDR",level=0.5,n.core=cores)
               data_sugg <- get.QTL(data_sugg)
               data_sugg <- subset(data_sugg, Score >= threshold_suggestive)
-              data_sugg<- merge(data_sugg, GWAS_scores_effects_long, by = c("Marker","Model"))
+              SigQTL_sugg <- merge(SigQTL_sugg, GWAS_scores_effects_long, by = c("Marker","Model"))
               write.table(data_sugg, paste("./sigSuggestive/","Significant_effect_",colnames(pheno)[2],"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
 
               data_Bonferroni <- set.threshold(GWAS.fitted,method="Bonferroni",level=0.05,n.core=cores)
@@ -839,7 +839,7 @@ load_packages(pkgs)
                     write.table(SigQTL_permute, paste("./sigpermute/","Significant_effect_",colnames(pheno)[2],"_permute0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
                   }}
               }
-              scores <- GWAS.fitted@scores[[colnames(pheno)[2]]]; scores <- setDT(scores, keep.rownames = TRUE)
+              scores <- GWAS.fitted@scores[[colnames(pheno[2])]]; scores <- setDT(scores, keep.rownames = TRUE)
               scores$Chrom <- gsub("_.+$", "", scores$rn); scores$bp <- gsub("^.+_", "", scores$rn); scores$rn <- NULL
               scores <- as.data.frame(reshape2::melt(scores, id=c("Chrom","bp"))); colnames(scores) <- c("Chrom","bp","models","scores")
               scores <-na.omit(scores); scores$scores <- as.numeric(as.character(scores$scores)); scores$bp <- as.numeric(as.character(scores$bp))
