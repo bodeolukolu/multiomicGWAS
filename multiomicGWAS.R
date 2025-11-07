@@ -37,13 +37,12 @@ load_packages <- function(pkgs) {
 
 # List of required packages
 pkgs <- c("GWASpoly", "qqplotr", "AGHmatrix", "corrplot", "ggcorrplot", "ggplot2",
-  "plyr", "dplyr", "car", "MASS", "Hmisc", "data.table", "stringr",
+  "plyr", "dplyr", "tidyr", "car", "MASS", "Hmisc", "data.table", "stringr",
   "heatmaply", "ppcor", "zoo", "GGally", "reshape2", "compositions",
   "sommer", "mice", "qvalue")
 
 # Call it once at the start of your function
 load_packages(pkgs)
-
 
   #############################################################################################################################################################################
   # Specify parameters
@@ -617,11 +616,16 @@ load_packages(pkgs)
 
             # qqplot(GWAS.fitted) + ggtitle(label="Q-Q plot")
 
-            GWAS_logP <- GWAS.fitted@scores[[colnames(pheno[2])]]
+            SNP <- GWAS.fitted@map[["Marker"]]
+            GWAS_logP<- data.frame(
+              SNP = SNP,
+              scores  = GWAS.fitted@scores[[colnames(pheno[2])]]
+            )
             GWAS_logP$no_missing <- apply(GWAS_logP, MARGIN = 1, FUN = function(x) length(x[is.na(x)]) )
-            GWAS_logP <- subset(GWAS_logP, no_missing != ncol(GWAS_logP)-1)
+            GWAS_logP <- subset(GWAS_logP, no_missing != ncol(GWAS_logP)-2)
             GWAS_logP <- subset(GWAS_logP, select=-c(no_missing))
             colnames(GWAS_logP) <- paste0(colnames(GWAS_logP), "_scores")
+            rownames(GWAS_logP) <- GWAS_logP$SNP; GWAS_logP <- GWAS_logP[,-1]
             GWAS_logP <- cbind(SNP = rownames(GWAS_logP), GWAS_logP)
 
             if ( !is.null(GWAS_logP) ) {
@@ -632,6 +636,44 @@ load_packages(pkgs)
               colnames(GWAS_effects) <- paste0(colnames(GWAS_effects), "_effects")
               GWAS_effects <- cbind(SNP = rownames(GWAS_effects), GWAS_effects)
               GWAS_scores_effects <- merge(GWAS_logP, GWAS_effects, by=c("SNP"))
+
+              geno_mat <- t(as.matrix(geno[ , -c(2:3)]))
+              colnames(geno_mat) <- geno_mat[1,]; geno_mat <- geno_mat[-1,]
+              geno_mat <- apply(geno_mat, 2, as.numeric)
+              geno_maf <- data.frame(
+                SNP = colnames(geno_mat),
+                MAF = apply(geno_mat, 2, function(x) {
+                  x <- as.numeric(x)
+                  x <- x[!is.na(x)]
+                  if (length(x) == 0) return(NA)
+                  p <- mean(x) / as.numeric(ploidy)   # allele frequency adjusted by ploidy
+                  return(min(p, 1 - p))               # minor allele frequency
+                })
+              )
+              GWAS_scores_effects <- merge(GWAS_scores_effects, geno_maf, by = "SNP")
+              var_y <- var(pheno[,2], na.rm = TRUE)
+              # Calculate PVE
+              GWAS_scores_effects$additive_PVE <- ploidy * GWAS_scores_effects$MAF * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$additive_effect^2) / var_y
+              GWAS_scores_effects$'1-dom-alt_PVE' <- ploidy * GWAS_scores_effects$MAF * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'1-dom-alt_effect'^2) / var_y
+              GWAS_scores_effects$'1-dom-ref_PVE' <- ploidy * GWAS_scores_effects$MAF * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'1-dom-ref_effect'^2) / var_y
+              if (ploidy == 4){
+              GWAS_scores_effects$'2-dom-alt_PVE' <- ploidy * 2 * GWAS_scores_effects$MAF * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'2-dom-alt_effect'^2) / var_y
+              GWAS_scores_effects$'2-dom-ref_PVE' <- ploidy * 2 * GWAS_scores_effects$MAF * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'2-dom-ref_effect'^2) / var_y
+              }
+              if (ploidy == 6){
+                GWAS_scores_effects$'2-dom-alt_PVE' <- ploidy * GWAS_scores_effects$MAF * 2 * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'2-dom-alt_effect'^2) / var_y
+                GWAS_scores_effects$'2-dom-ref_PVE' <- ploidy * GWAS_scores_effects$MAF * 2 * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'2-dom-ref_effect'^2) / var_y
+                GWAS_scores_effects$'3-dom-alt_PVE' <- ploidy * GWAS_scores_effects$MAF * 3 * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'3-dom-alt_effect'^2) / var_y
+                GWAS_scores_effects$'3-dom-ref_PVE' <- ploidy * GWAS_scores_effects$MAF * 3 * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'3-dom-ref_effect'^2) / var_y
+              }
+              if (ploidy == 8){
+                GWAS_scores_effects$'2-dom-alt_PVE' <- ploidy * GWAS_scores_effects$MAF * 2 * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'2-dom-alt_effect'^2) / var_y
+                GWAS_scores_effects$'2-dom-ref_PVE' <- ploidy * GWAS_scores_effects$MAF * 2 * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'2-dom-ref_effect'^2) / var_y
+                GWAS_scores_effects$'3-dom-alt_PVE' <- ploidy * GWAS_scores_effects$MAF * 3 * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'3-dom-alt_effect'^2) / var_y
+                GWAS_scores_effects$'3-dom-ref_PVE' <- ploidy * GWAS_scores_effects$MAF * 3 * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'3-dom-ref_effect'^2) / var_y
+                GWAS_scores_effects$'4-dom-alt_PVE' <- ploidy * GWAS_scores_effects$MAF * 4 * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'3-dom-alt_effect'^2) / var_y
+                GWAS_scores_effects$'4-dom-ref_PVE' <- ploidy * GWAS_scores_effects$MAF * 4 * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'3-dom-ref_effect'^2) / var_y
+              }
 
               write.table(GWAS_scores_effects, file=paste("./scores_effects/","score_effects_",colnames(pheno[2]),".txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
               colnames(GWAS_logP) <- gsub("_scores", "", colnames(GWAS_logP)); GWAS_logP <- GWAS_logP[,-1]
@@ -749,8 +791,20 @@ load_packages(pkgs)
               #     }}
               # }
 
+              GWAS_scores_effects_wide <- GWAS_scores_effects %>%
+                select(SNP, MAF, additive_PVE, `1-dom-alt_PVE`, `1-dom-alt_PVE` = `1-dom-alt_PVE`)
+              GWAS_scores_effects_long <- GWAS_scores_effects_wide %>%
+                pivot_longer(cols = c(additive_PVE, `1-dom-alt_PVE`, `1-dom-alt_PVE`),names_to = "Model",values_to = "PVE"
+                ) %>%
+                mutate(Model = case_when(Model %in% c("additive_PVE", "PVE_additive") ~ "additive",
+                    Model %in% c("1-dom-ralt_PVE", "1-dom-alt_PVE") ~ "1-dom-alt",Model %in% c("1-dom-ref_PVE") ~ "1-dom-ref",
+                    TRUE ~ Model)
+                )
+              colnames(GWAS_scores_effects_long)[1] <- "Marker"
+
               data_fdr <- set.threshold(GWAS.fitted,method="FDR",level=0.05,n.core=cores)
               SigQTL_fdr <- get.QTL(data_fdr)
+              SigQTL_fdr <- merge(SigQTL_fdr, GWAS_scores_effects_long, by = c("Marker","Model"))
               if (is.null(SigQTL_fdr) == "TRUE") {print ("file is empty")} else{
                 if (is.null(SigQTL_fdr) == "FALSE") {
                   write.table(SigQTL_fdr, paste("./sigFDR/","Significant_effect_",colnames(pheno[2]),"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
@@ -759,10 +813,12 @@ load_packages(pkgs)
               data_sugg <- set.threshold(GWAS.fitted,method="FDR",level=0.5,n.core=cores)
               data_sugg <- get.QTL(data_sugg)
               data_sugg <- subset(data_sugg, Score >= threshold_suggestive)
+              SigQTL_sugg <- merge(SigQTL_sugg, GWAS_scores_effects_long, by = c("Marker","Model"))
               write.table(data_sugg, paste("./sigSuggestive/","Significant_effect_",colnames(pheno[2]),"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
 
               data_Bonferroni <- set.threshold(GWAS.fitted,method="Bonferroni",level=0.05,n.core=cores)
               SigQTL_Bonferroni <- get.QTL(data_Bonferroni)
+              SigQTL_Bonferroni <- merge(SigQTL_Bonferroni, GWAS_scores_effects_long, by = c("Marker","Model"))
               if (is.null(SigQTL_Bonferroni) == "TRUE") {print ("file is empty")} else{
                 if (is.null(SigQTL_Bonferroni) == "FALSE") {
                   write.table(SigQTL_Bonferroni, paste("./sigBonferroni/","Significant_effect_",colnames(pheno[2]),"_Bonferroni0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
@@ -777,6 +833,7 @@ load_packages(pkgs)
               if (permutations >= 100) {
                 data_permute <- set.threshold(GWAS.fitted,method="permute",n.permute=permutations,level=0.05,n.core=cores)
                 SigQTL_permute <- get.QTL(data_permute)
+                SigQTL_permute <- merge(SigQTL_permute, GWAS_scores_effects_long, by = c("Marker","Model"))
                 if (is.null(SigQTL_permute) == "TRUE") {print ("file is empty")} else{
                   if (is.null(SigQTL_permute) == "FALSE") {
                     write.table(SigQTL_permute, paste("./sigpermute/","Significant_effect_",colnames(pheno[2]),"_permute0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
