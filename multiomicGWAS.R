@@ -654,25 +654,25 @@ load_packages(pkgs)
               var_y <- var(pheno[,2], na.rm = TRUE)
               # Calculate PVE
               GWAS_scores_effects$additive_PVE <- (GWAS_scores_effects$additive_effect^2) / var_y
-              GWAS_scores_effects$'1-dom-alt_PVE' <- GWAS_scores_effects$'1-dom-alt_effect'^2) / var_y
-              GWAS_scores_effects$'1-dom-ref_PVE' <- (GWAS_scores_effects$'1-dom-ref_effect'^2) / var_y
+              GWAS_scores_effects$`1-dom-alt_PVE` <- GWAS_scores_effects$`1-dom-alt_effect`^2) / var_y
+              GWAS_scores_effects$`1-dom-ref_PVE` <- (GWAS_scores_effects$`1-dom-ref_effect`^2) / var_y
               if (ploidy == 4){
-              GWAS_scores_effects$'2-dom-alt_PVE' <- (GWAS_scores_effects$'2-dom-alt_effect'^2) / var_y
-              GWAS_scores_effects$'2-dom-ref_PVE' <- (GWAS_scores_effects$'2-dom-ref_effect'^2) / var_y
+              GWAS_scores_effects$`2-dom-alt_PVE` <- (GWAS_scores_effects$`2-dom-alt_effect`^2) / var_y
+              GWAS_scores_effects$`2-dom-ref_PVE` <- (GWAS_scores_effects$`2-dom-ref_effect`^2) / var_y
               }
               if (ploidy == 6){
-                GWAS_scores_effects$'2-dom-alt_PVE' <- (GWAS_scores_effects$'2-dom-alt_effect'^2) / var_y
-                GWAS_scores_effects$'2-dom-ref_PVE' <- (GWAS_scores_effects$'2-dom-ref_effect'^2) / var_y
-                GWAS_scores_effects$'3-dom-alt_PVE' <- (GWAS_scores_effects$'3-dom-alt_effect'^2) / var_y
-                GWAS_scores_effects$'3-dom-ref_PVE' <- (GWAS_scores_effects$'3-dom-ref_effect'^2) / var_y
+                GWAS_scores_effects$`2-dom-alt_PVE` <- (GWAS_scores_effects$`2-dom-alt_effect`^2) / var_y
+                GWAS_scores_effects$`2-dom-ref_PVE` <- (GWAS_scores_effects$`2-dom-ref_effect`^2) / var_y
+                GWAS_scores_effects$`3-dom-alt_PVE` <- (GWAS_scores_effects$`3-dom-alt_effect`^2) / var_y
+                GWAS_scores_effects$`3-dom-ref_PVE` <- (GWAS_scores_effects$`3-dom-ref_effect`^2) / var_y
               }
               if (ploidy == 8){
-                GWAS_scores_effects$'2-dom-alt_PVE' <- (GWAS_scores_effects$'2-dom-alt_effect'^2) / var_y
-                GWAS_scores_effects$'2-dom-ref_PVE' <- (GWAS_scores_effects$'2-dom-ref_effect'^2) / var_y
-                GWAS_scores_effects$'3-dom-alt_PVE' <- (GWAS_scores_effects$'3-dom-alt_effect'^2) / var_y
-                GWAS_scores_effects$'3-dom-ref_PVE' <- (GWAS_scores_effects$'3-dom-ref_effect'^2) / var_y
-                GWAS_scores_effects$'4-dom-alt_PVE' <- (GWAS_scores_effects$'3-dom-alt_effect'^2) / var_y
-                GWAS_scores_effects$'4-dom-ref_PVE' <- (GWAS_scores_effects$'3-dom-ref_effect'^2) / var_y
+                GWAS_scores_effects$`2-dom-alt_PVE` <- (GWAS_scores_effects$`2-dom-alt_effect`^2) / var_y
+                GWAS_scores_effects$`2-dom-ref_PVE` <- (GWAS_scores_effects$`2-dom-ref_effect`^2) / var_y
+                GWAS_scores_effects$`3-dom-alt_PVE` <- (GWAS_scores_effects$`3-dom-alt_effect`^2) / var_y
+                GWAS_scores_effects$`3-dom-ref_PVE` <- (GWAS_scores_effects$`3-dom-ref_effect`^2) / var_y
+                GWAS_scores_effects$`4-dom-alt_PVE` <- (GWAS_scores_effects$`3-dom-alt_effect`^2) / var_y
+                GWAS_scores_effects$`4-dom-ref_PVE` <- (GWAS_scores_effects$`3-dom-ref_effect`^2) / var_y
               }
 
               write.table(GWAS_scores_effects, file=paste("./scores_effects/","score_effects_",colnames(pheno)[2],".txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
