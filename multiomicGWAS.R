@@ -801,10 +801,11 @@ load_packages(pkgs)
                     TRUE ~ Model)
                 )
               colnames(GWAS_scores_effects_long)[1] <- "Marker"
-
               data_fdr <- set.threshold(GWAS.fitted,method="FDR",level=0.05,n.core=cores)
               SigQTL_fdr <- get.QTL(data_fdr)
-              SigQTL_fdr <- merge(SigQTL_fdr, GWAS_scores_effects_long, by = c("Marker","Model"))
+              if (nrow(SigQTL_fdr) > 0) {
+                SigQTL_fdr <- merge(SigQTL_fdr, GWAS_scores_effects_long, by = c("Marker", "Model"))
+              }
               if (is.null(SigQTL_fdr) == "TRUE") {print ("file is empty")} else{
                 if (is.null(SigQTL_fdr) == "FALSE") {
                   write.table(SigQTL_fdr, paste("./sigFDR/","Significant_effect_",colnames(pheno)[2],"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
@@ -812,17 +813,21 @@ load_packages(pkgs)
 
               data_sugg <- set.threshold(GWAS.fitted,method="FDR",level=0.5,n.core=cores)
               data_sugg <- get.QTL(data_sugg)
-              data_sugg <- subset(data_sugg, Score >= threshold_suggestive)
-              data_sugg<- merge(data_sugg, GWAS_scores_effects_long, by = c("Marker","Model"))
+              if (nrow(data_sugg) > 0) {
+                data_sugg <- merge(data_sugg, GWAS_scores_effects_long, by = c("Marker", "Model"))
+              }
               write.table(data_sugg, paste("./sigSuggestive/","Significant_effect_",colnames(pheno)[2],"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
 
               data_Bonferroni <- set.threshold(GWAS.fitted,method="Bonferroni",level=0.05,n.core=cores)
               SigQTL_Bonferroni <- get.QTL(data_Bonferroni)
-              SigQTL_Bonferroni <- merge(SigQTL_Bonferroni, GWAS_scores_effects_long, by = c("Marker","Model"))
+              if (nrow(SigQTL_Bonferroni) > 0) {
+                SigQTL_Bonferroni <- merge(SigQTL_Bonferroni, GWAS_scores_effects_long, by = c("Marker", "Model"))
+              }
               if (is.null(SigQTL_Bonferroni) == "TRUE") {print ("file is empty")} else{
                 if (is.null(SigQTL_Bonferroni) == "FALSE") {
                   write.table(SigQTL_Bonferroni, paste("./sigBonferroni/","Significant_effect_",colnames(pheno)[2],"_Bonferroni0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
                 }}
+
               # data_Meff <- set.threshold(GWAS.fitted,method="M.eff",level=0.05,n.core=cores)
               # SigQTL_Meff <- get.QTL(data_Meff)
               # if (is.null(SigQTL_Meff) == "TRUE") {print ("file is empty")} else{
@@ -833,12 +838,15 @@ load_packages(pkgs)
               if (permutations >= 100) {
                 data_permute <- set.threshold(GWAS.fitted,method="permute",n.permute=permutations,level=0.05,n.core=cores)
                 SigQTL_permute <- get.QTL(data_permute)
-                SigQTL_permute <- merge(SigQTL_permute, GWAS_scores_effects_long, by = c("Marker","Model"))
+                if (nrow(SigQTL_permute) > 0) {
+                  SigQTL_permute <- merge(SigQTL_permute, GWAS_scores_effects_long, by = c("Marker", "Model"))
+                }
                 if (is.null(SigQTL_permute) == "TRUE") {print ("file is empty")} else{
                   if (is.null(SigQTL_permute) == "FALSE") {
                     write.table(SigQTL_permute, paste("./sigpermute/","Significant_effect_",colnames(pheno)[2],"_permute0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
                   }}
               }
+              
               scores <- GWAS.fitted@scores[[colnames(pheno[2])]]; scores <- setDT(scores, keep.rownames = TRUE)
               scores$Chrom <- gsub("_.+$", "", scores$rn); scores$bp <- gsub("^.+_", "", scores$rn); scores$rn <- NULL
               scores <- as.data.frame(reshape2::melt(scores, id=c("Chrom","bp"))); colnames(scores) <- c("Chrom","bp","models","scores")
