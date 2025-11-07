@@ -619,7 +619,7 @@ load_packages(pkgs)
             SNP <- GWAS.fitted@map[["Marker"]]
             GWAS_logP<- data.frame(
               SNP = SNP,
-              scores  = GWAS.fitted@scores[[colnames(pheno[2])]]
+              scores  = GWAS.fitted@scores[[colnames(pheno)[2]]]
             )
             GWAS_logP$no_missing <- apply(GWAS_logP, MARGIN = 1, FUN = function(x) length(x[is.na(x)]) )
             GWAS_logP <- subset(GWAS_logP, no_missing != ncol(GWAS_logP)-2)
@@ -629,7 +629,7 @@ load_packages(pkgs)
             GWAS_logP <- cbind(SNP = rownames(GWAS_logP), GWAS_logP)
 
             if ( !is.null(GWAS_logP) ) {
-              GWAS_effects <- GWAS.fitted@effects[[colnames(pheno[2])]]
+              GWAS_effects <- GWAS.fitted@effects[[colnames(pheno)[2]]]
               GWAS_effects$no_missing <- apply(GWAS_effects, MARGIN = 1, FUN = function(x) length(x[is.na(x)]) )
               GWAS_effects <- subset(GWAS_effects, no_missing != ncol(GWAS_effects)-1)
               GWAS_effects <- subset(GWAS_effects, select=-c(no_missing))
@@ -675,7 +675,7 @@ load_packages(pkgs)
                 GWAS_scores_effects$'4-dom-ref_PVE' <- ploidy * GWAS_scores_effects$MAF * 4 * (1 - GWAS_scores_effects$MAF) * (GWAS_scores_effects$'3-dom-ref_effect'^2) / var_y
               }
 
-              write.table(GWAS_scores_effects, file=paste("./scores_effects/","score_effects_",colnames(pheno[2]),".txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+              write.table(GWAS_scores_effects, file=paste("./scores_effects/","score_effects_",colnames(pheno)[2],".txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
               colnames(GWAS_logP) <- gsub("_scores", "", colnames(GWAS_logP)); GWAS_logP <- GWAS_logP[,-1]
               colnames(GWAS_effects) <- gsub("_effects", "", colnames(GWAS_effects)); GWAS_effects <- GWAS_effects[,-1]
 
@@ -719,7 +719,7 @@ load_packages(pkgs)
                 qqplot_metric1 <- as.data.frame(t(c(j,dev_norm_av))); names(qqplot_metric1) <- c("model","dev_norm_avGW")
                 qqplot_metric <- rbind(qqplot_metric, qqplot_metric1)
               }
-              write.table(qqplot_metric, file=paste("./qqplots/",colnames(pheno[2]),"_qqplot_metric.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+              write.table(qqplot_metric, file=paste("./qqplots/",colnames(pheno)[2],"_qqplot_metric.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
 
 
               if (ploidy == 2) {
@@ -729,8 +729,8 @@ load_packages(pkgs)
                   geom_ribbon(aes(x=expected, ymin=clower, ymax=cupper),alpha = 0.1) + theme_gray()+
                   theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"),
                         strip.text = element_text(size=10, color="black"))+
-                  xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno[2])))
-                ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno[2]),"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=4, units=("in"), dpi=120, compression = "lzw")
+                  xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno)[2]))
+                ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno)[2],"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=4, units=("in"), dpi=120, compression = "lzw")
               }
               if (ploidy == 4) {
                 qqplot <- ggplot(ps, aes(x=expected, y=observed, group=model)) + facet_wrap(~model, ncol=1)+
@@ -739,8 +739,8 @@ load_packages(pkgs)
                   geom_ribbon(aes(x=expected, ymin=clower, ymax=cupper),alpha = 0.1) + theme_gray()+
                   theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"),
                         strip.text = element_text(size=10, color="black"))+
-                  xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno[2])))
-                ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno[2]),"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=8, units=("in"), dpi=120, compression = "lzw")
+                  xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno)[2]))
+                ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno)[2],"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=8, units=("in"), dpi=120, compression = "lzw")
               }
               if (ploidy == 6) {
                 qqplot <- ggplot(ps, aes(x=expected, y=observed, group=model)) + facet_wrap(~model, ncol=1)+
@@ -749,8 +749,8 @@ load_packages(pkgs)
                   geom_ribbon(aes(x=expected, ymin=clower, ymax=cupper),alpha = 0.1) + theme_gray()+
                   theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"),
                         strip.text = element_text(size=10, color="black"))+
-                  xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno[2])))
-                ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno[2]),"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=12, units=("in"), dpi=120, compression = "lzw")
+                  xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno)[2]))
+                ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno)[2],"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=12, units=("in"), dpi=120, compression = "lzw")
               }
               if (ploidy == 8) {
                 qqplot <- ggplot(ps, aes(x=expected, y=observed, group=model)) + facet_wrap(~model, ncol=1)+
@@ -759,27 +759,27 @@ load_packages(pkgs)
                   geom_ribbon(aes(x=expected, ymin=clower, ymax=cupper),alpha = 0.1) + theme_gray()+
                   theme(plot.title = element_text(hjust = 0.5), strip.background=element_rect(fill="grey"),
                         strip.text = element_text(size=10, color="black"))+
-                  xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno[2])))
-                ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno[2]),"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=16, units=("in"), dpi=120, compression = "lzw")
+                  xlab(log10Pe) + ylab(log10Po) + labs(title=paste(colnames(pheno)[2]))
+                ggsave(file=paste("./qqplots/","QQplot_",colnames(pheno)[2],"_fdr0.05.tiff",sep=""), plot=qqplot, width=4.5, height=16, units=("in"), dpi=120, compression = "lzw")
               }
 
               # data_r2_fdr <- set.threshold(GWAS.fitted,method="FDR",level=0.05,n.core=cores)
               # SigQTL_r2_fdr <- fit.QTL(data_r2_fdr, trait=paste(traitname), qtl=qtl[,c("Marker","Model")])
               # if (is.null(SigQTL_r2_fdr) == "TRUE") {print ("file is empty")} else{
               #   if (is.null(SigQTL_r2_fdr) == "FALSE") {
-              #     write.table(SigQTL_r2_fdr, paste("./sigFDR/","Significant_R2_",colnames(pheno[2]),"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+              #     write.table(SigQTL_r2_fdr, paste("./sigFDR/","Significant_R2_",colnames(pheno)[2],"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
               #   }}
               # data_r2_Bonferroni <- set.threshold(GWAS.fitted,method="Bonferroni",level=0.05,n.core=cores)
               # SigQT_r2L_Bonferroni <- fit.QTL(data_r2_Bonferroni, trait=paste(traitname), qtl=qtl[,c("Marker","Model")])
               # if (is.null(SigQTL_r2_Bonferroni) == "TRUE") {print ("file is empty")} else{
               #   if (is.null(SigQTL_r2_Bonferroni) == "FALSE") {
-              #     write.table(SigQTL_r2_Bonferroni, paste("./sigBonferroni/","Significant_R2_",colnames(pheno[2]),"_Bonferroni0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+              #     write.table(SigQTL_r2_Bonferroni, paste("./sigBonferroni/","Significant_R2_",colnames(pheno)[2],"_Bonferroni0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
               #   }}
               # data_r2_Meff <- set.threshold(GWAS.fitted,method="M.eff",level=0.05,n.core=cores)
               # SigQT_r2L_Meff <- fit.QTL(data_r2_Meff, trait=paste(traitname), qtl=qtl[,c("Marker","Model")])
               # if (is.null(SigQTL_r2_Meff) == "TRUE") {print ("file is empty")} else{
               #   if (is.null(SigQTL_r2_Meff) == "FALSE") {
-              #     write.table(SigQTL_r2_Meff, paste("./sigBonferroni/","Significant_R2_",colnames(pheno[2]),"_Meff.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+              #     write.table(SigQTL_r2_Meff, paste("./sigBonferroni/","Significant_R2_",colnames(pheno)[2],"_Meff.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
               #   }}
               # if (is.null(permutations)) { permutations=0}
               # if (permutations >= 100) {
@@ -787,7 +787,7 @@ load_packages(pkgs)
               #   SigQTL_r2_permute <- fit.QTL(data_permute, trait=paste(traitname), qtl=qtl[,c("Marker","Model")])
               #   if (is.null(SigQTL_r2_permute) == "TRUE") {print ("file is empty")} else{
               #     if (is.null(SigQTL_r2_permute) == "FALSE") {
-              #       write.table(SigQTL_r2_permute, paste("./sigpermute/","Significant_R2_",colnames(pheno[2]),"_permute0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+              #       write.table(SigQTL_r2_permute, paste("./sigpermute/","Significant_R2_",colnames(pheno)[2],"_permute0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
               #     }}
               # }
 
@@ -807,27 +807,27 @@ load_packages(pkgs)
               SigQTL_fdr <- merge(SigQTL_fdr, GWAS_scores_effects_long, by = c("Marker","Model"))
               if (is.null(SigQTL_fdr) == "TRUE") {print ("file is empty")} else{
                 if (is.null(SigQTL_fdr) == "FALSE") {
-                  write.table(SigQTL_fdr, paste("./sigFDR/","Significant_effect_",colnames(pheno[2]),"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+                  write.table(SigQTL_fdr, paste("./sigFDR/","Significant_effect_",colnames(pheno)[2],"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
                 }}
 
               data_sugg <- set.threshold(GWAS.fitted,method="FDR",level=0.5,n.core=cores)
               data_sugg <- get.QTL(data_sugg)
               data_sugg <- subset(data_sugg, Score >= threshold_suggestive)
               SigQTL_sugg <- merge(SigQTL_sugg, GWAS_scores_effects_long, by = c("Marker","Model"))
-              write.table(data_sugg, paste("./sigSuggestive/","Significant_effect_",colnames(pheno[2]),"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+              write.table(data_sugg, paste("./sigSuggestive/","Significant_effect_",colnames(pheno)[2],"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
 
               data_Bonferroni <- set.threshold(GWAS.fitted,method="Bonferroni",level=0.05,n.core=cores)
               SigQTL_Bonferroni <- get.QTL(data_Bonferroni)
               SigQTL_Bonferroni <- merge(SigQTL_Bonferroni, GWAS_scores_effects_long, by = c("Marker","Model"))
               if (is.null(SigQTL_Bonferroni) == "TRUE") {print ("file is empty")} else{
                 if (is.null(SigQTL_Bonferroni) == "FALSE") {
-                  write.table(SigQTL_Bonferroni, paste("./sigBonferroni/","Significant_effect_",colnames(pheno[2]),"_Bonferroni0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+                  write.table(SigQTL_Bonferroni, paste("./sigBonferroni/","Significant_effect_",colnames(pheno)[2],"_Bonferroni0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
                 }}
               # data_Meff <- set.threshold(GWAS.fitted,method="M.eff",level=0.05,n.core=cores)
               # SigQTL_Meff <- get.QTL(data_Meff)
               # if (is.null(SigQTL_Meff) == "TRUE") {print ("file is empty")} else{
               #   if (is.null(SigQTL_Meff) == "FALSE") {
-              #     write.table(SigQTL_Meff, paste("./sigMeff/","Significant_effect_",colnames(pheno[2]),"_Meff.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+              #     write.table(SigQTL_Meff, paste("./sigMeff/","Significant_effect_",colnames(pheno)[2],"_Meff.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
               #   }}
               if (is.null(permutations)) { permutations=0}
               if (permutations >= 100) {
@@ -836,10 +836,10 @@ load_packages(pkgs)
                 SigQTL_permute <- merge(SigQTL_permute, GWAS_scores_effects_long, by = c("Marker","Model"))
                 if (is.null(SigQTL_permute) == "TRUE") {print ("file is empty")} else{
                   if (is.null(SigQTL_permute) == "FALSE") {
-                    write.table(SigQTL_permute, paste("./sigpermute/","Significant_effect_",colnames(pheno[2]),"_permute0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+                    write.table(SigQTL_permute, paste("./sigpermute/","Significant_effect_",colnames(pheno)[2],"_permute0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
                   }}
               }
-              scores <- GWAS.fitted@scores[[colnames(pheno[2])]]; scores <- setDT(scores, keep.rownames = TRUE)
+              scores <- GWAS.fitted@scores[[colnames(pheno)[2]]]; scores <- setDT(scores, keep.rownames = TRUE)
               scores$Chrom <- gsub("_.+$", "", scores$rn); scores$bp <- gsub("^.+_", "", scores$rn); scores$rn <- NULL
               scores <- as.data.frame(reshape2::melt(scores, id=c("Chrom","bp"))); colnames(scores) <- c("Chrom","bp","models","scores")
               scores <-na.omit(scores); scores$scores <- as.numeric(as.character(scores$scores)); scores$bp <- as.numeric(as.character(scores$bp))
@@ -925,8 +925,8 @@ load_packages(pkgs)
                     geom_point(data = legend_df, aes(x = x, y = y, fill = threshold), inherit.aes = FALSE, size = 10, shape=22) +
                     scale_fill_manual(values = setNames(legend_df$color, legend_df$threshold)) +
                     guides(fill = guide_legend(title = "Thresholds")) +
-                    labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
-                  ggsave(file=paste("./manplots/","manplot_",colnames(pheno[2]),".tiff",sep=""), plot=manplot, width=30, height=dim, units=("in"), dpi=600, compression = "lzw")
+                    labs(title= paste(colnames(pheno)[2],"\n",sep=""), size=40)
+                  ggsave(file=paste("./manplots/","manplot_",colnames(pheno)[2],".tiff",sep=""), plot=manplot, width=30, height=dim, units=("in"), dpi=600, compression = "lzw")
                 }
                 if (biparental == TRUE) {
                   manplot <- ggplot(scores, aes(x = Chrom_bp, y=scores, group=Chrom)) +
@@ -949,8 +949,8 @@ load_packages(pkgs)
                           strip.text.x = element_text(size=30,color="black"), strip.text.y = element_text(size=40,color="black"),
                           axis.line=element_line(colour="white")) +
                     theme(legend.position = "none") + theme(plot.title = element_text(hjust = 0.5)) + ylim(c(0,NA)) +
-                    labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
-                  ggsave(file=paste("./manplots/","QTLprofile_",colnames(pheno[2]),".tiff",sep=""), plot=manplot, width=30, height=dim, units=("in"), dpi=600, compression = "lzw")
+                    labs(title= paste(colnames(pheno)[2],"\n",sep=""), size=40)
+                  ggsave(file=paste("./manplots/","QTLprofile_",colnames(pheno)[2],".tiff",sep=""), plot=manplot, width=30, height=dim, units=("in"), dpi=600, compression = "lzw")
                 }
               }
               if (ploidy == 4) {
@@ -977,8 +977,8 @@ load_packages(pkgs)
                     geom_point(data = legend_df, aes(x = x, y = y, fill = threshold), inherit.aes = FALSE, size = 10, shape=22) +
                     scale_fill_manual(values = setNames(legend_df$color, legend_df$threshold)) +
                     guides(fill = guide_legend(title = "Thresholds")) +
-                    labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
-                  ggsave(file=paste("./manplots/","manplot_",colnames(pheno[2]),".tiff",sep=""), plot=manplot, width=30, height=30, units=("in"), dpi=300, compression = "lzw")
+                    labs(title= paste(colnames(pheno)[2],"\n",sep=""), size=40)
+                  ggsave(file=paste("./manplots/","manplot_",colnames(pheno)[2],".tiff",sep=""), plot=manplot, width=30, height=30, units=("in"), dpi=300, compression = "lzw")
                 }
                 if (biparental == TRUE) {
                   manplot <- ggplot(scores, aes(x = Chrom_bp, y=scores, group=Chrom)) +
@@ -1004,8 +1004,8 @@ load_packages(pkgs)
                     geom_point(data = legend_df, aes(x = x, y = y, fill = threshold), inherit.aes = FALSE, size = 10, shape=22) +
                     scale_fill_manual(values = setNames(legend_df$color, legend_df$threshold)) +
                     guides(fill = guide_legend(title = "Thresholds")) +
-                    labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
-                  ggsave(file=paste("./manplots/","QTLprofile_",colnames(pheno[2]),".tiff",sep=""), plot=manplot, width=30, height=30, units=("in"), dpi=300, compression = "lzw")
+                    labs(title= paste(colnames(pheno)[2],"\n",sep=""), size=40)
+                  ggsave(file=paste("./manplots/","QTLprofile_",colnames(pheno)[2],".tiff",sep=""), plot=manplot, width=30, height=30, units=("in"), dpi=300, compression = "lzw")
                 }
               }
               if (ploidy == 6) {
@@ -1032,8 +1032,8 @@ load_packages(pkgs)
                     geom_point(data = legend_df, aes(x = x, y = y, fill = threshold), inherit.aes = FALSE, size = 10, shape=22) +
                     scale_fill_manual(values = setNames(legend_df$color, legend_df$threshold)) +
                     guides(fill = guide_legend(title = "Thresholds")) +
-                    labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
-                  ggsave(file=paste("./manplots/","manplot_",colnames(pheno[2]),".tiff",sep=""), plot=manplot, width=30, height=40, units=("in"), dpi=300, compression = "lzw")
+                    labs(title= paste(colnames(pheno)[2],"\n",sep=""), size=40)
+                  ggsave(file=paste("./manplots/","manplot_",colnames(pheno)[2],".tiff",sep=""), plot=manplot, width=30, height=40, units=("in"), dpi=300, compression = "lzw")
                 }
                 if (biparental == TRUE) {
                   manplot <- ggplot(scores, aes(x = Chrom_bp, y=scores, group=Chrom)) +
@@ -1059,8 +1059,8 @@ load_packages(pkgs)
                     geom_point(data = legend_df, aes(x = x, y = y, fill = threshold), inherit.aes = FALSE, size = 10, shape=22) +
                     scale_fill_manual(values = setNames(legend_df$color, legend_df$threshold)) +
                     guides(fill = guide_legend(title = "Thresholds")) +
-                    labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
-                  ggsave(file=paste("./manplots/","QTLprofile_",colnames(pheno[2]),".tiff",sep=""), plot=manplot, width=30, height=40, units=("in"), dpi=300, compression = "lzw")
+                    labs(title= paste(colnames(pheno)[2],"\n",sep=""), size=40)
+                  ggsave(file=paste("./manplots/","QTLprofile_",colnames(pheno)[2],".tiff",sep=""), plot=manplot, width=30, height=40, units=("in"), dpi=300, compression = "lzw")
                 }
               }
               if (ploidy == 8) {
@@ -1087,8 +1087,8 @@ load_packages(pkgs)
                     geom_point(data = legend_df, aes(x = x, y = y, fill = threshold), inherit.aes = FALSE, size = 10, shape=22) +
                     scale_fill_manual(values = setNames(legend_df$color, legend_df$threshold)) +
                     guides(fill = guide_legend(title = "Thresholds")) +
-                    labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
-                  ggsave(file=paste("./manplots/","manplot_",colnames(pheno[2]),".tiff",sep=""), plot=manplot, width=30, height=50, units=("in"), dpi=300, compression = "lzw")
+                    labs(title= paste(colnames(pheno)[2],"\n",sep=""), size=40)
+                  ggsave(file=paste("./manplots/","manplot_",colnames(pheno)[2],".tiff",sep=""), plot=manplot, width=30, height=50, units=("in"), dpi=300, compression = "lzw")
                 }
                 if (biparental == TRUE) {
                   manplot <- ggplot(scores, aes(x = Chrom_bp, y=scores, group=Chrom)) +
@@ -1114,8 +1114,8 @@ load_packages(pkgs)
                     geom_point(data = legend_df, aes(x = x, y = y, fill = threshold), inherit.aes = FALSE, size = 10, shape=22) +
                     scale_fill_manual(values = setNames(legend_df$color, legend_df$threshold)) +
                     guides(fill = guide_legend(title = "Thresholds")) +
-                    labs(title= paste(colnames(pheno[2]),"\n",sep=""), size=40)
-                  ggsave(file=paste("./manplots/","QTLprofile_",colnames(pheno[2]),".tiff",sep=""), plot=manplot, width=30, height=50, units=("in"), dpi=300, compression = "lzw")
+                    labs(title= paste(colnames(pheno)[2],"\n",sep=""), size=40)
+                  ggsave(file=paste("./manplots/","QTLprofile_",colnames(pheno)[2],".tiff",sep=""), plot=manplot, width=30, height=50, units=("in"), dpi=300, compression = "lzw")
                 }
               }
 
