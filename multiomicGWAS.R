@@ -813,7 +813,7 @@ load_packages(pkgs)
               data_sugg <- set.threshold(GWAS.fitted,method="FDR",level=0.5,n.core=cores)
               data_sugg <- get.QTL(data_sugg)
               data_sugg <- subset(data_sugg, Score >= threshold_suggestive)
-              SigQTL_sugg <- merge(SigQTL_sugg, GWAS_scores_effects_long, by = c("Marker","Model"))
+              data_sugg<- merge(data_sugg, GWAS_scores_effects_long, by = c("Marker","Model"))
               write.table(data_sugg, paste("./sigSuggestive/","Significant_effect_",colnames(pheno)[2],"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
 
               data_Bonferroni <- set.threshold(GWAS.fitted,method="Bonferroni",level=0.05,n.core=cores)
