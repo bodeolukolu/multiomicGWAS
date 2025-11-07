@@ -813,10 +813,11 @@ load_packages(pkgs)
 
               data_sugg <- set.threshold(GWAS.fitted,method="FDR",level=0.5,n.core=cores)
               data_sugg <- get.QTL(data_sugg)
+              data_sugg <- subset(data_sugg, Score >= threshold_suggestive)
               if (nrow(data_sugg) > 0) {
                 data_sugg <- merge(data_sugg, GWAS_scores_effects_long, by = c("Marker", "Model"))
               }
-              write.table(data_sugg, paste("./sigSuggestive/","Significant_effect_",colnames(pheno)[2],"_fdr0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
+              write.table(data_sugg, paste("./sigSuggestive/","Significant_effect_",colnames(pheno)[2],"_sugg",threshold_suggestive,".txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
 
               data_Bonferroni <- set.threshold(GWAS.fitted,method="Bonferroni",level=0.05,n.core=cores)
               SigQTL_Bonferroni <- get.QTL(data_Bonferroni)
@@ -846,7 +847,7 @@ load_packages(pkgs)
                     write.table(SigQTL_permute, paste("./sigpermute/","Significant_effect_",colnames(pheno)[2],"_permute0.05.txt",sep=""), row.names=F, quote = FALSE, sep = "\t")
                   }}
               }
-              
+
               scores <- GWAS.fitted@scores[[colnames(pheno[2])]]; scores <- setDT(scores, keep.rownames = TRUE)
               scores$Chrom <- gsub("_.+$", "", scores$rn); scores$bp <- gsub("^.+_", "", scores$rn); scores$rn <- NULL
               scores <- as.data.frame(reshape2::melt(scores, id=c("Chrom","bp"))); colnames(scores) <- c("Chrom","bp","models","scores")
